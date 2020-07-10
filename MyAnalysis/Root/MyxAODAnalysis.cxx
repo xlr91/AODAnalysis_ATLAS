@@ -99,14 +99,29 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   
   for (const xAOD::TruthParticle* truth : *truthparticles) {
     if (truth->absPdgId() == 1000006) {
+      
       ANA_MSG_INFO( m_nonSTOP << " number of nonstops since");
       m_nonSTOP = 0;
+
       ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
+      //ANA_MSG_INFO("Does it have prodvtx? " << truth->hasProdVtx() << " decayvtx? " << truth->hasDecayVtx());
       // check children        
+
+      const xAOD::TruthVertex* thevertex = truth->prodVtx(); 
+      //ANA_MSG_INFO ("prod x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
+      //ANA_MSG_INFO ("perp: " << thevertex->perp());
+
+      thevertex = truth->decayVtx(); 
+      //ANA_MSG_INFO ("decay x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
+      //ANA_MSG_INFO ("perp: " << thevertex->perp());
+      
+
       if (truth->nChildren() > 1) {
         for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
+
           const xAOD::TruthParticle* child=truth->child(ichild);
-          ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " nChildren " << child->nChildren());	
+          ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " pT: " << child->pt() << " nChildren " << child->nChildren());	
+        
           for (int igchild=0; igchild< child->nChildren() ; igchild++) {
             const xAOD::TruthParticle* gchild=child->child(igchild);
             ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
