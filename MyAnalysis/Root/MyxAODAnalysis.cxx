@@ -13,6 +13,10 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
   // declare all properties for your algorithm.  Note that things like
   // resetting statistics variables or booking histograms should
   // rather go into the initialize() function.
+  declareProperty( "nonSTOP", m_nonSTOP = 0, "Desc?");
+  // declareProperty( "TitleforJobOption", codetitle = 0, "Desc?");
+                   
+
 }
 
 
@@ -26,6 +30,7 @@ StatusCode MyxAODAnalysis :: initialize ()
 
   ANA_MSG_INFO ("in initialize");
   ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
+  
 
 
   return StatusCode::SUCCESS;
@@ -90,23 +95,26 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   //Truth example
   const xAOD::TruthParticleContainer* truthparticles;
   ANA_CHECK (evtStore()->retrieve (truthparticles, "TruthParticles"));
-    ANA_MSG_INFO ("Number of truth particles " << truthparticles->size() );
+  ANA_MSG_INFO ("Number of truth particles " << truthparticles->size() );
+  
   for (const xAOD::TruthParticle* truth : *truthparticles) {
     if (truth->absPdgId() == 1000006) {
-    ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
-// check children        
-     if (truth->nChildren() > 1) {
-      for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
-	const xAOD::TruthParticle* child=truth->child(ichild);
-	ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " nChildren " << child->nChildren());	
-      for (int igchild=0; igchild< child->nChildren() ; igchild++) {
-
-	const xAOD::TruthParticle* gchild=child->child(igchild);
-	ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
+      ANA_MSG_INFO( m_nonSTOP << " number of nonstops since");
+      m_nonSTOP = 0;
+      ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
+      // check children        
+      if (truth->nChildren() > 1) {
+        for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
+          const xAOD::TruthParticle* child=truth->child(ichild);
+          ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " nChildren " << child->nChildren());	
+          for (int igchild=0; igchild< child->nChildren() ; igchild++) {
+            const xAOD::TruthParticle* gchild=child->child(igchild);
+            ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
+          }
+        }    
       }
-	}
-        
-     }
+    } else {
+      m_nonSTOP = m_nonSTOP+1; 
     }
     /*
     if ( truth->nChildren() == 0 ) {

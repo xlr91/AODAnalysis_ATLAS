@@ -24,6 +24,7 @@ private:
   //float m_cutValue;
   //TTree *m_myTree;
   //TH1 *m_myHist;
+  int m_nonSTOP;
 };
 
 #endif
