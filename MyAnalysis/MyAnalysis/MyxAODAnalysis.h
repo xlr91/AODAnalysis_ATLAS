@@ -18,6 +18,8 @@ public:
   virtual StatusCode initialize () override;
   virtual StatusCode execute () override;
   virtual StatusCode finalize () override;
+  Double_t decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2);
+
 
 private:
   // Configuration, and any other types of variables go here.

@@ -1,7 +1,7 @@
 #include <AsgTools/MessageCheck.h>
 #include <MyAnalysis/MyxAODAnalysis.h>
 #include <xAODEventInfo/EventInfo.h>
-
+#include <cmath>
 
 
 MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
@@ -19,7 +19,11 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 
 }
 
+Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
+  double_t result= pow((x1->x() - x2->x()), 2.0) + pow((x1->y() - x2->y()), 2.0) + pow((x1->z() - x2->z()), 2.0);
 
+  return sqrt(result);
+}
 
 StatusCode MyxAODAnalysis :: initialize ()
 {
@@ -30,6 +34,8 @@ StatusCode MyxAODAnalysis :: initialize ()
 
   ANA_MSG_INFO ("in initialize");
   ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
+  ANA_CHECK(book(TH1F("h_truthDecayLength", "h_truthDecayLength", 100, 0, 10)));
+  ANA_CHECK(book(TH1F("h_childDecayLength", "h_childDecayLength", 100, 0, 150)));
   
 
 
@@ -107,13 +113,8 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
       //ANA_MSG_INFO("Does it have prodvtx? " << truth->hasProdVtx() << " decayvtx? " << truth->hasDecayVtx());
       // check children        
 
-      const xAOD::TruthVertex* thevertex = truth->prodVtx(); 
-      //ANA_MSG_INFO ("prod x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
-      //ANA_MSG_INFO ("perp: " << thevertex->perp());
+ 
 
-      thevertex = truth->decayVtx(); 
-      //ANA_MSG_INFO ("decay x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
-      //ANA_MSG_INFO ("perp: " << thevertex->perp());
       
 
       if (truth->nChildren() > 1) {
@@ -124,10 +125,28 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
         
           for (int igchild=0; igchild< child->nChildren() ; igchild++) {
             const xAOD::TruthParticle* gchild=child->child(igchild);
-            ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
+            if (gchild->absPdgId() == 13){
+              ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
+              //Decay length of parent
+
+              const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
+              const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
+              const xAOD::TruthVertex* cproVtx = child->prodVtx(); 
+              const xAOD::TruthVertex* cdecVtx = child->decayVtx(); 
+              //ANA_MSG_INFO ("prod x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
+              //ANA_MSG_INFO ("perp: " << thevertex->perp());
+              //ANA_MSG_INFO ("decay x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
+              //ANA_MSG_INFO ("perp: " << thevertex->perp());
+              ANA_MSG_INFO("Truth Decay length: "<< decaylength(tproVtx, tdecVtx));
+              ANA_MSG_INFO("Child Decay length: "<< decaylength(cproVtx, cdecVtx));
+              hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
+              hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
+              //Decay length of child 
+
+            }
           }
         }    
-      }
+      } 
     } else {
       m_nonSTOP = m_nonSTOP+1; 
     }
