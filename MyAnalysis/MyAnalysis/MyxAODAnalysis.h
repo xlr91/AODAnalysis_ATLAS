@@ -20,7 +20,7 @@ public:
   virtual StatusCode execute () override;
   virtual StatusCode finalize () override;
   Double_t decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2);
-  Double_t calcd0(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p);
+  Float_t calcd0(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p);
 
 
 private:
