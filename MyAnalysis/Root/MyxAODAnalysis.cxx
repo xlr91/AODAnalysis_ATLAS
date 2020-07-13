@@ -14,6 +14,8 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
   // resetting statistics variables or booking histograms should
   // rather go into the initialize() function.
   declareProperty( "nonSTOP", m_nonSTOP = 0, "Desc?");
+  declareProperty( "vector_test", vector_test, "A test for the existence of vectors ykno");
+  //declareProperty( "truth_vector", truth_vector, "Pointer Vector of Truth particles");
   // declareProperty( "TitleforJobOption", codetitle = 0, "Desc?");
                    
 
@@ -21,8 +23,12 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 
 Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
   double_t result= pow((x1->x() - x2->x()), 2.0) + pow((x1->y() - x2->y()), 2.0) + pow((x1->z() - x2->z()), 2.0);
-
   return sqrt(result);
+}
+
+Double_t MyxAODAnalysis::calcd0(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p){
+  double_t dr2 = pow((truth_p->eta() - track_p->eta()), 2.0) + pow((truth_p->phi() - track_p->phi()), 2.0);
+  return sqrt(dr2);
 }
 
 StatusCode MyxAODAnalysis :: initialize ()
@@ -33,9 +39,17 @@ StatusCode MyxAODAnalysis :: initialize ()
   // connected.
 
   ANA_MSG_INFO ("in initialize");
-  ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
-  ANA_CHECK(book(TH1F("h_truthDecayLength", "h_truthDecayLength", 100, 0, 10)));
-  ANA_CHECK(book(TH1F("h_childDecayLength", "h_childDecayLength", 100, 0, 150)));
+  //ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
+  //ANA_CHECK(book(TH1F("fileIdentifier", "title in graph", no. of bins, min, max)));
+  ANA_CHECK(book(TH1F("h_truthDecayLength", "STop_Decay_Length", 100, 0, 10)));
+  ANA_CHECK(book(TH1F("h_childDecayLength", "RHadron_Decay_Length", 100, 0, 150)));
+  ANA_CHECK(book(TH1F("h_phiInOffline", "phi_In_Offline", 100, -3.15, -3.15)));
+  ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
+
+  //check number of parents the muons have (just for head purposes)
+  ANA_CHECK(book(TH1F("h_muon_parent", "MuonParents", 100, 0, 10)));
+
+  
   
 
 
@@ -96,7 +110,32 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   for (const xAOD::TrackParticle* track : *tracks_bs) {
     ANA_MSG_INFO ("Track pT " << track->pt() );
   } 
-  */  
+  */
+  vector_test.push_back(1);
+
+  //Access InDetTrackParticles
+  const xAOD::TrackParticleContainer* offlineparticles;
+  ANA_CHECK (evtStore() -> retrieve (offlineparticles, "InDetTrackParticles"));
+  ANA_MSG_INFO("Found Offline, size is " << offlineparticles->size());
+  m_nonSTOP = 0;
+
+
+  for (const xAOD::TrackParticle* offline : *offlineparticles){
+    //ANA_MSG_INFO("Eta : " << offline -> eta() << "Phi : " << offline -> phi());
+    
+    
+    hist ("h_phiInOffline")->Fill(offline -> phi());
+    hist ("h_etaInOffline")->Fill(offline -> eta());
+    
+
+
+
+    
+  }
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+
 
   //Truth example
   const xAOD::TruthParticleContainer* truthparticles;
@@ -106,28 +145,25 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   for (const xAOD::TruthParticle* truth : *truthparticles) {
     if (truth->absPdgId() == 1000006) {
       
-      ANA_MSG_INFO( m_nonSTOP << " number of nonstops since");
+      ///ANA_MSG_INFO( m_nonSTOP << " number of nonstops since");
       m_nonSTOP = 0;
 
-      ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
+      ///ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
       //ANA_MSG_INFO("Does it have prodvtx? " << truth->hasProdVtx() << " decayvtx? " << truth->hasDecayVtx());
       // check children        
-
- 
-
-      
 
       if (truth->nChildren() > 1) {
         for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
 
           const xAOD::TruthParticle* child=truth->child(ichild);
-          ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " pT: " << child->pt() << " nChildren " << child->nChildren());	
+          //ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " pT: " << child->pt() << " nChildren " << child->nChildren());	
         
           for (int igchild=0; igchild< child->nChildren() ; igchild++) {
             const xAOD::TruthParticle* gchild=child->child(igchild);
             if (gchild->absPdgId() == 13){
               ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
               //Decay length of parent
+
 
               const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
               const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
@@ -137,11 +173,17 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
               //ANA_MSG_INFO ("perp: " << thevertex->perp());
               //ANA_MSG_INFO ("decay x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
               //ANA_MSG_INFO ("perp: " << thevertex->perp());
-              ANA_MSG_INFO("Truth Decay length: "<< decaylength(tproVtx, tdecVtx));
-              ANA_MSG_INFO("Child Decay length: "<< decaylength(cproVtx, cdecVtx));
+              //ANA_MSG_INFO("Truth Decay length: "<< decaylength(tproVtx, tdecVtx));
+              //ANA_MSG_INFO("Child Decay length: "<< decaylength(cproVtx, cdecVtx));
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
-              //Decay length of child 
+
+              hist ("h_muon_parent")->Fill (gchild -> nParents());
+
+              //Shove the grandchild up a vector
+              //truth_vector.push_back(gchild);
+      
+
 
             }
           }
@@ -179,5 +221,7 @@ StatusCode MyxAODAnalysis :: finalize ()
   // Most of the time you want to do your post-processing on the
   // submission node after all your histogram outputs have been
   // merged.
+
+  ANA_MSG_INFO("ENDS YEET with size of vector test " << vector_test.size());
   return StatusCode::SUCCESS;
 }

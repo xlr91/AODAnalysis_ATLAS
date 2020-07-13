@@ -1,6 +1,7 @@
 #ifndef MyAnalysis_MyxAODAnalysis_H
 #define MyAnalysis_MyxAODAnalysis_H
 
+#include <vector>
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <TH1.h>
 #include <xAODJet/JetContainer.h>
@@ -19,6 +20,7 @@ public:
   virtual StatusCode execute () override;
   virtual StatusCode finalize () override;
   Double_t decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2);
+  Double_t calcd0(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p);
 
 
 private:
@@ -27,6 +29,9 @@ private:
   //TTree *m_myTree;
   //TH1 *m_myHist;
   int m_nonSTOP;
+  std::vector<int> vector_test;
+  
+
 };
 
 #endif

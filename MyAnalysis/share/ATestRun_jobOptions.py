@@ -25,7 +25,8 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
-theApp.EvtMax = 500
+#theApp.EvtMax = 500
+theApp.EvtMax = 2
 
 #Msg limits
 MessageSvc.defaultLimit = 1000  # all messages 
