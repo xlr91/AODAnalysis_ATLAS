@@ -13,8 +13,8 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
   // declare all properties for your algorithm.  Note that things like
   // resetting statistics variables or booking histograms should
   // rather go into the initialize() function.
-  declareProperty( "nonSTOP", m_nonSTOP = 0, "Desc?");
-  declareProperty( "vector_test", vector_test, "A test for the existence of vectors ykno");
+  // declareProperty( "nonSTOP", m_nonSTOP = 0, "Desc?");
+  //declareProperty( "vector_test", vector_test, "A test for the existence of vectors ykno");
   //declareProperty( "truth_vector", truth_vector, "Pointer Vector of Truth particles");
   // declareProperty( "TitleforJobOption", codetitle = 0, "Desc?");
                    
@@ -26,9 +26,35 @@ Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::Tr
   return sqrt(result);
 }
 
-Float_t MyxAODAnalysis::calcd0(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p){
+Float_t MyxAODAnalysis::calcdr(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p){
   Float_t dr2 = pow((truth_p->eta() - track_p->eta()), 2.0) + pow((truth_p->phi() - track_p->phi()), 2.0);
   return sqrt(dr2);
+}
+
+Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p){
+  /*
+  Float_t num = (((truth_p -> prodVtx()) -> x()) * (truth_p -> px())) + (((truth_p -> prodVtx()) -> y()) * (truth_p -> py()));
+  Float_t dem = pow(((truth_p -> prodVtx()) -> x()), 2.0) + pow(((truth_p -> prodVtx()) -> y()), 2.0);
+  return num/(sqrt(dem));
+  */
+
+  /*
+  const xAOD::TruthVertex* pv = truth_p -> prodVtx();
+  Float_t num = (truth_p -> px() * pv -> y()) - (truth_p -> py() * pv -> x());
+  Float_t dem = sqrt(  pow( truth_p -> px() , 2.0) + pow(truth_p -> py() , 2.0) );
+  //Float_t num = (( pV-> y()) * (truth_p -> px())) - (((truth_p -> prodVtx()) -> x()) * (truth_p -> py()));
+  ///Float_t dem = pow(((truth_p -> prodVtx()) -> x()), 2.0) + pow(((truth_p -> prodVtx()) -> y()), 2.0);
+  //return num/(sqrt(dem));
+  return num/dem;
+  
+  */
+
+  ///*
+  //https://arxiv.org/pdf/1405.6569.pdf page 35
+  Float_t ans = ((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
+  return -ans;
+  //*/
+  
 }
 
 StatusCode MyxAODAnalysis :: initialize ()
@@ -41,12 +67,28 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_MSG_INFO ("in initialize");
   //ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
   //ANA_CHECK(book(TH1F("fileIdentifier", "title in graph", no. of bins, min, max)));
+
+  //Monitoring Histograms
   ANA_CHECK(book(TH1F("h_truthDecayLength", "STop_Decay_Length", 100, 0, 10)));
   ANA_CHECK(book(TH1F("h_childDecayLength", "RHadron_Decay_Length", 100, 0, 150)));
   ANA_CHECK(book(TH1F("h_phiInOffline", "phi_In_Offline", 100, -3.15, -3.15)));
   ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
 
-  ANA_CHECK(book(TH1F("h_drvalues", "dR_values", 300, 0, 20)));
+  //Triggering Histograms
+  ANA_CHECK(book(TH1F("h_drvalues", "dR_values", 300, 0, 1)));
+  ANA_CHECK(book(TH1F("h_d0truth", "d0_values_for_truth_muons", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0track", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
+
+  ANA_CHECK(book(TH1F("h_etatruth", "eta_values_for_truth_muons", 300, 0, 5)));
+  ANA_CHECK(book(TH1F("h_etatrack", "eta_values_for_matched_reco_tracks", 300, 0, 5)));
+  ANA_CHECK(book(TH1F("h_etaeff", "Efficiency_function_of_eta", 300, 0, 5)));
+
+  ANA_CHECK(book(TH1F("h_pTtruth", "pT_values_for_truth_muons", 300, 0, 150)));
+  ANA_CHECK(book(TH1F("h_pTtrack", "pT_values_for_matched_reco_tracks", 300, 0, 150)));
+  ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 150)));
+  
+  ANA_CHECK(book(TH2F("h_d0truthvtrack", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
 
   //check number of parents the muons have (just for head purposes)
   ANA_CHECK(book(TH1F("h_muon_parent", "MuonParents", 100, 0, 10)));
@@ -68,7 +110,6 @@ StatusCode MyxAODAnalysis :: execute ()
   // events, e.g. read input variables, apply cuts, and fill
   // histograms and trees.  This is where most of your actual analysis
   // code will go.
-
   ANA_MSG_INFO ("in execute");
 // retrieve the eventInfo object from the event store
 /*
@@ -115,110 +156,98 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
     ANA_MSG_INFO ("Track pT " << track->pt() );
   } 
   */
-  vector_test.push_back(1);
+
   
 
   //Access InDetTrackParticles
   const xAOD::TrackParticleContainer* offlineparticles;
   const xAOD::TruthParticleContainer* truthparticles;
-  ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
+  const xAOD::TrackParticle* matched_track;
+  const xAOD::TruthParticle* matched_truth;
+
   ANA_CHECK (evtStore() -> retrieve (offlineparticles, "InDetTrackParticles"));
+  ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
   ANA_MSG_INFO("Found Offline, size is " << offlineparticles->size());
   ANA_MSG_INFO("Found Truth, size is " << truthparticles->size());
-  m_nonSTOP = 0;
 
-  //track loop
-  for (const xAOD::TrackParticle* offline : *offlineparticles){
-    track_test.push_back(offline);
-    //ANA_MSG_INFO("Eta : " << offline -> eta() << "Phi : " << offline -> phi());
-    Float_t mindr = 2000;
-    hist ("h_phiInOffline")->Fill(offline -> phi());
-    hist ("h_etaInOffline")->Fill(offline -> eta());
-    
-    
-    ANA_CHECK (evtStore()->retrieve (truthparticles, "TruthParticles"));
-    //ANA_MSG_INFO ("Number of truth particles " << truthparticles->size() );
-    //truth loop
-    for (const xAOD::TruthParticle* truth : *truthparticles) {
-      if (truth->absPdgId() == 1000006) {
-        
-        ///ANA_MSG_INFO( m_nonSTOP << " number of nonstops since");
-        m_nonSTOP = 0;
 
-        ///ANA_MSG_INFO ("Truth particle pdgid pT nChildren  : " << truth->pdgId() << " " << truth->pt() << " " << truth->nChildren());    
-        //ANA_MSG_INFO("Does it have prodvtx? " << truth->hasProdVtx() << " decayvtx? " << truth->hasDecayVtx());
-        // check children        
-
-        if (truth->nChildren() > 1) {
-          for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
-
-            const xAOD::TruthParticle* child=truth->child(ichild);
-            //ANA_MSG_INFO("child " << ichild << "  pdgid: " << child->pdgId() << " pT: " << child->pt() << " nChildren " << child->nChildren());	
+  //truth loop
+  //finds only those that goes STop -> RHadron -> muon
+  for (const xAOD::TruthParticle* truth : *truthparticles) {
+    if (truth->absPdgId() == 1000006) {     
+      if (truth->nChildren() > 1) {
+        for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
           
-            for (int igchild=0; igchild< child->nChildren() ; igchild++) {
-              const xAOD::TruthParticle* gchild=child->child(igchild);
-              if (gchild->absPdgId() == 13){
-                //ANA_MSG_INFO("gchild " << igchild << "  pdgid: " << gchild->pdgId() << " nChildren " << gchild->nChildren() << " pT eta phi " << gchild->pt() << " " << gchild->eta() << " " << gchild->phi() );	
-                //Decay length of parent
-                const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
-                const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
-                const xAOD::TruthVertex* cproVtx = child->prodVtx(); 
-                const xAOD::TruthVertex* cdecVtx = child->decayVtx(); 
+          const xAOD::TruthParticle* child=truth->child(ichild);
+          for (int igchild=0; igchild< child->nChildren() ; igchild++) {
+            
+            const xAOD::TruthParticle* gchild=child->child(igchild);
+            if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
 
+              hist ("h_muon_parent")->Fill (gchild -> nParents()); //sanity check (unused)
+
+              //Get the decay lengths of stop (expected to be 0) and RHadron (expected to be about 20 mm)
+              const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
+              const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
+              const xAOD::TruthVertex* cproVtx = child->prodVtx(); 
+              const xAOD::TruthVertex* cdecVtx = child->decayVtx(); 
+              hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
+              hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
+
+              
+              Float_t mindr = 2000;
+              matched_track = nullptr;
+              matched_truth = gchild;
+
+              //Track Loop
+              for (const xAOD::TrackParticle* offline : *offlineparticles){
+                track_test.push_back(offline); //sanity check
+
+                //Monitoring Histograms
+                hist ("h_phiInOffline")->Fill(offline -> phi());
+                hist ("h_etaInOffline")->Fill(offline -> eta());
                 
-
-                if(mindr > calcd0(gchild, offline)){
-                  mindr = calcd0(gchild, offline);
+                //finds matched track
+                if(mindr > calcdr(gchild, offline)){
+                  mindr = calcdr(gchild, offline);
+                  matched_track = offline;
                 }
-                //ANA_MSG_INFO ("prod x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
-                //ANA_MSG_INFO ("perp: " << thevertex->perp());
-                //ANA_MSG_INFO ("decay x, y, z: " << thevertex->x() << " " << thevertex->y() << " " << thevertex->z());
-                //ANA_MSG_INFO ("perp: " << thevertex->perp());
-                //ANA_MSG_INFO("Truth Decay length: "<< decaylength(tproVtx, tdecVtx));
-                //ANA_MSG_INFO("Child Decay length: "<< decaylength(cproVtx, cdecVtx));
-                hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
-                hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
+              } //end of track loop
+              
+              if (mindr == 2000) matched_truth = nullptr;
 
-                hist ("h_muon_parent")->Fill (gchild -> nParents());
+              //Result of matching truth muon tracks with the reco tracks
+              hist ("h_drvalues")->Fill (mindr);
 
-                //Shove the grandchild up a vector
-                //truth_vector.push_back(gchild);
-        
+              hist ("h_d0truth")->Fill (truthd0(matched_truth));
+              hist ("h_d0track")->Fill (matched_track -> d0());
+
+              hist ("h_etatruth")->Fill (matched_truth -> eta());
+              hist ("h_etatrack")->Fill (matched_track -> eta());
+              hist ("h_pTtruth")->Fill (matched_truth -> pt() / 1000000);
+              hist ("h_pTtrack")->Fill (matched_track -> pt() / 1000000);
+
+              hist ("h_d0truthvtrack")->Fill (matched_track -> d0(), truthd0(matched_truth));
+
+              //hist ("h_d0truthvtrack") ->Divide(Histogram)
+              
 
 
-              }
+              ANA_MSG_INFO("Track Pointer: " << matched_track << " Truth Pointer: " << gchild << " mindr: " << mindr);
+              ///Compare d0 
+              /*
+              ANA_MSG_INFO("Track d0 : " << matched_track -> d0() << " GCPhi: " << gchild -> phi());
+              //ANA_MSG_INFO("GCProd x : " <<(gchild->prodVtx())  -> x() <<  " y : " << (gchild->prodVtx())  -> y() << " z : " << (gchild->prodVtx())  -> z());
+              //ANA_MSG_INFO("CProd x : " <<cproVtx -> x() <<  " y : " << cproVtx -> y() << " z : " << cproVtx -> z());
+              ANA_MSG_INFO("MomP  x : " <<gchild -> px() <<  " y : " << gchild -> py() << " z : " << gchild -> pz());
+              ANA_MSG_INFO("CDecy x : " <<cdecVtx -> x() <<  " y : " << cdecVtx -> y() << " z : " << cdecVtx -> z());
+              */
             }
-          }    
-        } 
-      } else {
-        m_nonSTOP = m_nonSTOP+1; 
-      }
-      /*
-      if ( truth->nChildren() == 0 ) {
-        ANA_MSG_INFO ("No children : Truth pdgid pT eta phi   : " << truth->pdgId() << " " << truth->pt() << " " << truth->eta() << " "  << truth->phi());
-        if (truth->nParents() == 1) {
-
-    ANA_MSG_INFO ("one parent : Truth pdgid pT eta phi   : " << truth->parent(0)->pdgId() << " " << truth->parent(0)->pt() << " " << truth->parent(0)->eta() << " "  << truth->parent(0)->phi());
-        }
+          }// end of gchild loop
+        } //end of child loop
+      } 
     } 
-      */
-    } // end loop over truth partciles
-
-    //ANA_MSG_INFO("dr : " << mindr);
-    hist ("h_drvalues")->Fill (mindr);
-  }
-
-
-  ////////////////////////////////////////////////////////////////////////////////
-
-  ANA_MSG_INFO("Vector size of the pointer : " << track_test[0]);
-
-
-  //Truth example
-  
-
-
-  
+  } //end of truth loop
   return StatusCode::SUCCESS;
 }
 
@@ -226,6 +255,8 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
 
 StatusCode MyxAODAnalysis :: finalize ()
 {
+
+
   // This method is the mirror image of initialize(), meaning it gets
   // called after the last event has been processed on the worker node
   // and allows you to finish up any objects you created in
@@ -234,6 +265,12 @@ StatusCode MyxAODAnalysis :: finalize ()
   // Most of the time you want to do your post-processing on the
   // submission node after all your histogram outputs have been
   // merged.
+
+
+
+  hist ("h_d0eff") ->Divide(hist ("h_d0track"), hist ("h_d0truth"));
+  hist ("h_etaeff") ->Divide(hist ("h_etatrack"), hist ("h_etatruth"));
+  hist ("h_pTeff") ->Divide(hist ("h_pTtrack"), hist ("h_pTtruth"));
 
   ANA_MSG_INFO("ENDS YEET with size of vector test " << vector_test.size());
   return StatusCode::SUCCESS;
