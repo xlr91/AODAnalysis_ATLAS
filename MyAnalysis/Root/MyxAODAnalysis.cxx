@@ -115,7 +115,8 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_LRT", "truth_d0_vs_LRT_d0", 300, -10, 10, 300, -10, 10)));
 
   
-  
+  ANA_CHECK(book(TH1F("h_d0eff_n", "Efficiency_function_of_d0", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
 
   /*
   //ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
@@ -208,6 +209,7 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   const xAOD::TrackParticle* matched_track;
   Float_t mindr;
   Float_t truthd0val;
+  Bool_t passedflag = true;
 
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
@@ -285,10 +287,14 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                 
 
                 //Cuts
-                Bool_t passedflag = true;
+                passedflag = true;
                 if( abs((gchild->eta() - matched_track->eta())) > m_etacut  ||  
                     abs((gchild->phi() - matched_track->phi())) > m_phicut  ){
                   passedflag = false;
+                  ANA_MSG_INFO("CutOut weehihihiih");
+
+                } else {
+                  hist ("h_d0eff_n")->Fill(matched_track -> d0());
                 }
                 
                 //Result of matching truth muon tracks with the reco tracks
@@ -326,6 +332,15 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                     matched_track = FTF_T;
                   }
                 } //end of FTF loop
+
+
+                //Cuts
+                passedflag = true;
+                if( abs((gchild->eta() - matched_track->eta())) > m_etacut  ||  
+                    abs((gchild->phi() - matched_track->phi())) > m_phicut  ){
+                  passedflag = false;
+                  ANA_MSG_INFO("CutOut weehihihiih FTF");
+                }
                 
                 hist ("FTF_h_dr")->Fill (mindr);
                 hist ("FTF_h_d0")->Fill (matched_track -> d0());
@@ -350,6 +365,14 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                     matched_track = LRT_T;
                   }
                 } //end of LRT loop
+                
+                //Cuts
+                passedflag = true;
+                if( abs((gchild->eta() - matched_track->eta())) > m_etacut  ||  
+                    abs((gchild->phi() - matched_track->phi())) > m_phicut  ){
+                  passedflag = false;
+                  ANA_MSG_INFO("CutOut weehihihiih LRT");
+                }
                 
                 hist ("LRT_h_dr")->Fill (mindr);
                 hist ("LRT_h_d0")->Fill (matched_track -> d0());
@@ -386,7 +409,7 @@ StatusCode MyxAODAnalysis :: finalize ()
 
 
 
-  //hist ("h_d0eff") ->Divide(hist ("offline_h_d0"), hist ("truth_h_d0"));
+  hist ("h_d0eff") ->Divide(hist ("h_d0eff_n"), hist ("truth_h_d0"));
   //hist ("h_etaeff") ->Divide(hist ("offline_h_eta"), hist ("truth_h_eta"));
   //hist ("h_pTeff") -> Fill Divide(hist ("offline_h_pT"), hist ("truth_h_pT"));
 
