@@ -29,7 +29,7 @@ athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 50000
+theApp.EvtMax = 100000
 
 #Msg limits
 MessageSvc.defaultLimit = 100000000  # all messages 

@@ -40,7 +40,7 @@ Float_t MyxAODAnalysis::calcdr(const xAOD::TruthParticle* truth_p, const xAOD::T
   return sqrt(dr2);
 }
 
-Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p){
+Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p, const xAOD::TruthVertex* truth_v){
   /*
   Float_t num = (((truth_p -> prodVtx()) -> x()) * (truth_p -> px())) + (((truth_p -> prodVtx()) -> y()) * (truth_p -> py()));
   Float_t dem = pow(((truth_p -> prodVtx()) -> x()), 2.0) + pow(((truth_p -> prodVtx()) -> y()), 2.0);
@@ -60,7 +60,7 @@ Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p){
 
   ///*
   //https://arxiv.org/pdf/1405.6569.pdf page 35
-  Float_t ans = ((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
+  Float_t ans = ((truth_p -> prodVtx()) -> x() - (truth_v -> x())) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()- (truth_v -> y())) * cos(truth_p -> phi());
   return -ans;
   //*/
   
@@ -207,6 +207,7 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   //const xAOD::TruthParticle* matched_truth;
   const xAOD::TrackParticle* matched_track;
   Float_t mindr;
+  Float_t truthd0val;
 
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
@@ -255,6 +256,9 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                  ANA_MSG_WARNING("Nullptr alert in gchild vector"); //ask why
                  continue;
               }
+
+
+              truthd0val = truthd0(gchild, cproVtx);
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
 
@@ -288,17 +292,20 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                 }
                 
                 //Result of matching truth muon tracks with the reco tracks
+                hist ("offline_h_dr")->Fill(0);
+                hist ("truth_h_d0")->Fill (truthd0val);
+                //ANA_MSG_INFO("PV x: " << cproVtx -> x() << " y: " << cproVtx -> y()  << " z: " << cproVtx -> z() );
+                hist ("truth_h_eta")->Fill (gchild -> eta());                
+                hist ("truth_h_pT")->Fill (gchild -> pt() / 1000000);
+
                 hist ("offline_h_dr")->Fill (mindr);
                 hist ("offline_h_d0")->Fill (matched_track -> d0());
                 hist ("offline_h_eta")->Fill (matched_track -> eta());
                 hist ("offline_h_pT")->Fill (matched_track -> pt() / 1000000);
-                hist ("compare/h_d0diff_offline")->Fill ( matched_track -> d0() - truthd0(gchild));
-                hist ("compare/h_d0truthvtrack_offline")->Fill (matched_track -> d0(), truthd0(gchild));
+                hist ("compare/h_d0diff_offline")->Fill ( matched_track -> d0() - truthd0val);
+                hist ("compare/h_d0truthvtrack_offline")->Fill (matched_track -> d0(), truthd0val);
 
-                hist ("offline_h_dr")->Fill(0);
-                hist ("truth_h_d0")->Fill (truthd0(gchild));
-                hist ("truth_h_eta")->Fill (gchild -> eta());                
-                hist ("truth_h_pT")->Fill (gchild -> pt() / 1000000);
+
                 
 
                 
@@ -324,8 +331,8 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                 hist ("FTF_h_d0")->Fill (matched_track -> d0());
                 hist ("FTF_h_eta")->Fill (matched_track -> eta());
                 hist ("FTF_h_pT")->Fill (matched_track -> pt() / 1000000);
-                hist ("compare/h_d0diff_FTF")->Fill ( matched_track -> d0() - truthd0(gchild));
-                hist ("compare/h_d0truthvtrack_FTF")->Fill (matched_track -> d0(), truthd0(gchild));
+                hist ("compare/h_d0diff_FTF")->Fill ( matched_track -> d0() - truthd0val);
+                hist ("compare/h_d0truthvtrack_FTF")->Fill (matched_track -> d0(), truthd0val);
                 
                 
                 mindr = 2000;
@@ -348,8 +355,8 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                 hist ("LRT_h_d0")->Fill (matched_track -> d0());
                 hist ("LRT_h_eta")->Fill (matched_track -> eta());
                 hist ("LRT_h_pT")->Fill (matched_track -> pt() / 1000000);
-                hist ("compare/h_d0diff_LRT")->Fill ( matched_track -> d0() - truthd0(gchild));
-                hist ("compare/h_d0truthvtrack_LRT")->Fill (matched_track -> d0(), truthd0(gchild));
+                hist ("compare/h_d0diff_LRT")->Fill ( matched_track -> d0() - truthd0val);
+                hist ("compare/h_d0truthvtrack_LRT")->Fill (matched_track -> d0(), truthd0val);
               }
 
 
