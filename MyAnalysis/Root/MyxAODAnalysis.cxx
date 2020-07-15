@@ -85,34 +85,34 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 
   //Truth Histograms
-  ANA_CHECK(book(TH1F("truth_h_dr", "dR_values", 100, 0, 0.005)));
-  ANA_CHECK(book(TH1F("truth_h_d0", "d0_values_for_truth_muons", 300, -30, 30)));
-  ANA_CHECK(book(TH1F("truth_h_eta", "eta_values_for_truth_muons", 300, -5, 5)));
-  ANA_CHECK(book(TH1F("truth_h_pT", "pT_values_for_truth_muons", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("truth_h_dr", "dR values for truth muons", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("truth_h_d0", "d0 values for truth muons", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("truth_h_eta", "eta values for truth muons", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("truth_h_pT", "pT values for truth muons", 300, 0, 2)));
 
   //Offline Histograms
-  ANA_CHECK(book(TH1F("offline_h_dr", "dR_values", 100, 0, 0.005)));
-  ANA_CHECK(book(TH1F("offline_h_d0", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
-  ANA_CHECK(book(TH1F("offline_h_eta", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
-  ANA_CHECK(book(TH1F("offline_h_pT", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("offline_h_dr", "dR values for offline tracks", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("offline_h_d0", "d0 values for offline tracks", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("offline_h_eta", "eta values for offline tracks", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("offline_h_pT", "pT values for offline tracks", 300, 0, 2)));
   //FTF Histograms
-  ANA_CHECK(book(TH1F("FTF_h_dr", "dR_values", 100, 0, 0.005)));
-  ANA_CHECK(book(TH1F("FTF_h_d0", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
-  ANA_CHECK(book(TH1F("FTF_h_eta", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
-  ANA_CHECK(book(TH1F("FTF_h_pT", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
   //LRT Histograms
-  ANA_CHECK(book(TH1F("LRT_h_dr", "dR_values", 100, 0, 0.005)));
-  ANA_CHECK(book(TH1F("LRT_h_d0", "d0_values_for_matched_reco_tracks", 300, -50, 50)));
-  ANA_CHECK(book(TH1F("LRT_h_eta", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
-  ANA_CHECK(book(TH1F("LRT_h_pT", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
   //Comparison Histograms
-  ANA_CHECK(book(TH1F("compare/h_d0diff_offline", "delta_d0 (track-truth)", 300, -2, 2)));
-  ANA_CHECK(book(TH1F("compare/h_d0diff_FTF", "delta_d0 (track-truth)", 300, -2, 2)));
-  ANA_CHECK(book(TH1F("compare/h_d0diff_LRT", "delta_d0 (track-truth)", 300, -2, 2)));
+  ANA_CHECK(book(TH1F("compare/h_d0diff_offline", "delta_d0 (Offline-truth)", 300, -2, 2)));
+  ANA_CHECK(book(TH1F("compare/h_d0diff_FTF", "delta_d0 (FTF-truth)", 300, -2, 2)));
+  ANA_CHECK(book(TH1F("compare/h_d0diff_LRT", "delta_d0 (LRT-truth)", 300, -2, 2)));
 
-  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_offline", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
-  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_FTF", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
-  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_LRT", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
+  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_offline", "truth_d0_vs_offline_d0", 300, -10, 10, 300, -10, 10)));
+  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_FTF", "truth_d0_vs_FTF_d0", 300, -10, 10, 300, -10, 10)));
+  ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_LRT", "truth_d0_vs_LRT_d0", 300, -10, 10, 300, -10, 10)));
 
   
   
