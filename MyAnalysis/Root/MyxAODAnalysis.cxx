@@ -2,11 +2,16 @@
 #include <MyAnalysis/MyxAODAnalysis.h>
 #include <xAODEventInfo/EventInfo.h>
 #include <cmath>
+#include "TEfficiency.h"
+#include "TCanvas.h"
+
 
 
 MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
                                   ISvcLocator *pSvcLocator)
-    : EL::AnaAlgorithm (name, pSvcLocator)
+    : EL::AnaAlgorithm (name, pSvcLocator) 
+    , pEff(0)
+    , c1(0)
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  This is also where you
@@ -17,8 +22,11 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
   //declareProperty( "vector_test", vector_test, "A test for the existence of vectors ykno");
   //declareProperty( "truth_vector", truth_vector, "Pointer Vector of Truth particles");
   // declareProperty( "TitleforJobOption", codetitle = 0, "Desc?");
-                   
+  declareProperty( "etacut", m_etacut = 0.1, "Maximum value for the eta cut");
+  declareProperty( "phicut", m_phicut = 0.1, "Maximum value for the phi cut");
 
+  declareProperty( "TriggerRead", m_trigger_read = true, "If it reads the trigger containers");
+  declareProperty( "OfflineRead", m_offline_read = true, "If it reads the offline containers");
 }
 
 Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
@@ -75,28 +83,30 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
 
   //Triggering Histograms
-  ANA_CHECK(book(TH1F("h_drvalues", "dR_values", 300, 0, 1)));
+  ANA_CHECK(book(TH1F("h_drvalues", "dR_values", 100, 0, 0.005)));
+
   ANA_CHECK(book(TH1F("h_d0truth", "d0_values_for_truth_muons", 300, -30, 30)));
   ANA_CHECK(book(TH1F("h_d0track", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
   ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0diff", "delta_d0 (track-truth)", 300, -2, 2)));
 
-  ANA_CHECK(book(TH1F("h_etatruth", "eta_values_for_truth_muons", 300, 0, 5)));
-  ANA_CHECK(book(TH1F("h_etatrack", "eta_values_for_matched_reco_tracks", 300, 0, 5)));
+  ANA_CHECK(book(TH1F("h_etatruth", "eta_values_for_truth_muons", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("h_etatrack", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("h_etaeff", "Efficiency_function_of_eta", 300, 0, 5)));
 
-  ANA_CHECK(book(TH1F("h_pTtruth", "pT_values_for_truth_muons", 300, 0, 150)));
-  ANA_CHECK(book(TH1F("h_pTtrack", "pT_values_for_matched_reco_tracks", 300, 0, 150)));
-  ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 150)));
+  ANA_CHECK(book(TH1F("h_pTtruth", "pT_values_for_truth_muons", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("h_pTtrack", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 10)));
   
   ANA_CHECK(book(TH2F("h_d0truthvtrack", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
 
   //check number of parents the muons have (just for head purposes)
   ANA_CHECK(book(TH1F("h_muon_parent", "MuonParents", 100, 0, 10)));
 
-
+  pEff = new TEfficiency("Efficiency","Efficiency (Unmanaged)",300, -30, 30);
   
-  
 
+  ANA_MSG_INFO("Offline: " << m_trigger_read << " Trigger Read: " <<  m_offline_read);
 
   return StatusCode::SUCCESS;
 }
@@ -194,11 +204,15 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
 
-              
+
+              ////Offline Tracks
               Float_t mindr = 2000;
               matched_track = nullptr;
               matched_truth = gchild;
 
+              if(m_offline_read){
+                
+              }
               //Track Loop
               for (const xAOD::TrackParticle* offline : *offlineparticles){
                 track_test.push_back(offline); //sanity check
@@ -216,12 +230,20 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
               
               if (mindr == 2000) matched_truth = nullptr;
 
+              //Cuts
+              Bool_t passedflag = true;
+              if( abs((matched_truth->eta() - matched_track->eta())) > m_etacut  ||  
+                  abs((matched_truth->phi() - matched_track->phi())) > m_phicut  ){
+                passedflag = false;
+              }
+              
               //Result of matching truth muon tracks with the reco tracks
               hist ("h_drvalues")->Fill (mindr);
 
               hist ("h_d0truth")->Fill (truthd0(matched_truth));
               hist ("h_d0track")->Fill (matched_track -> d0());
-
+              hist ("h_d0diff")->Fill ( matched_track -> d0() - truthd0(matched_truth));
+      
               hist ("h_etatruth")->Fill (matched_truth -> eta());
               hist ("h_etatrack")->Fill (matched_track -> eta());
               hist ("h_pTtruth")->Fill (matched_truth -> pt() / 1000000);
@@ -229,19 +251,14 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
 
               hist ("h_d0truthvtrack")->Fill (matched_track -> d0(), truthd0(matched_truth));
 
-              //hist ("h_d0truthvtrack") ->Divide(Histogram)
+              pEff->Fill(true,matched_track -> d0());
               
-
-
               ANA_MSG_INFO("Track Pointer: " << matched_track << " Truth Pointer: " << gchild << " mindr: " << mindr);
-              ///Compare d0 
-              /*
-              ANA_MSG_INFO("Track d0 : " << matched_track -> d0() << " GCPhi: " << gchild -> phi());
-              //ANA_MSG_INFO("GCProd x : " <<(gchild->prodVtx())  -> x() <<  " y : " << (gchild->prodVtx())  -> y() << " z : " << (gchild->prodVtx())  -> z());
-              //ANA_MSG_INFO("CProd x : " <<cproVtx -> x() <<  " y : " << cproVtx -> y() << " z : " << cproVtx -> z());
-              ANA_MSG_INFO("MomP  x : " <<gchild -> px() <<  " y : " << gchild -> py() << " z : " << gchild -> pz());
-              ANA_MSG_INFO("CDecy x : " <<cdecVtx -> x() <<  " y : " << cdecVtx -> y() << " z : " << cdecVtx -> z());
-              */
+
+
+
+              ////FTF Tracks
+              ////LRT Tracks
             }
           }// end of gchild loop
         } //end of child loop
@@ -270,7 +287,12 @@ StatusCode MyxAODAnalysis :: finalize ()
 
   hist ("h_d0eff") ->Divide(hist ("h_d0track"), hist ("h_d0truth"));
   hist ("h_etaeff") ->Divide(hist ("h_etatrack"), hist ("h_etatruth"));
-  hist ("h_pTeff") ->Divide(hist ("h_pTtrack"), hist ("h_pTtruth"));
+  //hist ("h_pTeff") -> Fill Divide(hist ("h_pTtrack"), hist ("h_pTtruth"));
+
+  //TCanvas *c2 = new TCanvas("c2"," Efficiency ",50,50,1680,1050);
+  //c1 = new TCanvas("c","c",1680,1050);
+  //pEff ->Draw("AP") >> hist ("h_pTeff");
+  //c1 -> Print("plots/pEffThing.png");
 
   ANA_MSG_INFO("ENDS YEET with size of vector test " << vector_test.size());
   return StatusCode::SUCCESS;

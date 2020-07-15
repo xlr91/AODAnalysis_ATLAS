@@ -8,6 +8,8 @@
 #include <xAODTracking/TrackParticleContainer.h>
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthVertexContainer.h>
+#include "TEfficiency.h"
+#include "TCanvas.h"
 
 class MyxAODAnalysis : public EL::AnaAlgorithm
 {
@@ -31,6 +33,15 @@ private:
   //TH1 *m_myHist;
   int m_nonSTOP;
   std::vector<int> vector_test;
+  TEfficiency* pEff;
+  TCanvas* c1;
+
+
+  float m_etacut;
+  float m_phicut; 
+
+  bool m_offline_read;
+  bool m_trigger_read;
   
 
 };
