@@ -22,14 +22,14 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 # later on we'll add some configuration options for our algorithm that go here
 #alg.ElectronPtCut = 30000.0
 #alg.SampleName = 'Zee'
-alg.OfflineRead = False
-alg.TriggerRead = True
+alg.OfflineRead = True
+alg.TriggerRead = False
 # Add our algorithm to the main alg sequence
 athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 1000
+theApp.EvtMax = 2000
 
 #Msg limits
 MessageSvc.defaultLimit = 1000  # all messages 

@@ -83,22 +83,22 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
 
   //Triggering Histograms
-  ANA_CHECK(book(TH1F("h_drvalues", "dR_values", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("h_drvalues_offline", "dR_values", 100, 0, 0.005)));
 
-  ANA_CHECK(book(TH1F("h_d0truth", "d0_values_for_truth_muons", 300, -30, 30)));
-  ANA_CHECK(book(TH1F("h_d0track", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0truth_offline", "d0_values_for_truth_muons", 300, -30, 30)));
+  ANA_CHECK(book(TH1F("h_d0track_offline", "d0_values_for_matched_reco_tracks", 300, -30, 30)));
   ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
-  ANA_CHECK(book(TH1F("h_d0diff", "delta_d0 (track-truth)", 300, -2, 2)));
+  ANA_CHECK(book(TH1F("h_d0diff_offline", "delta_d0 (track-truth)", 300, -2, 2)));
 
-  ANA_CHECK(book(TH1F("h_etatruth", "eta_values_for_truth_muons", 300, -5, 5)));
-  ANA_CHECK(book(TH1F("h_etatrack", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("h_etatruth_offline", "eta_values_for_truth_muons", 300, -5, 5)));
+  ANA_CHECK(book(TH1F("h_etatrack_offline", "eta_values_for_matched_reco_tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("h_etaeff", "Efficiency_function_of_eta", 300, 0, 5)));
 
-  ANA_CHECK(book(TH1F("h_pTtruth", "pT_values_for_truth_muons", 300, 0, 2)));
-  ANA_CHECK(book(TH1F("h_pTtrack", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("h_pTtruth_offline", "pT_values_for_truth_muons", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("h_pTtrack_offline", "pT_values_for_matched_reco_tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 10)));
   
-  ANA_CHECK(book(TH2F("h_d0truthvtrack", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
+  ANA_CHECK(book(TH2F("h_d0truthvtrack_offline", "truth_d0_vs_track_d0", 300, -10, 10, 300, -10, 10)));
 
   //check number of parents the muons have (just for head purposes)
   ANA_CHECK(book(TH1F("h_muon_parent", "MuonParents", 100, 0, 10)));
@@ -106,7 +106,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   pEff = new TEfficiency("Efficiency","Efficiency (Unmanaged)",300, -30, 30);
   
 
-  ANA_MSG_INFO("Offline: " << m_trigger_read << " Trigger Read: " <<  m_offline_read);
+  ANA_MSG_INFO("Offline: " << m_offline_read << " Trigger Read: " <<  m_trigger_read);
 
   return StatusCode::SUCCESS;
 }
@@ -170,16 +170,26 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   
 
   //Access InDetTrackParticles
-  const xAOD::TrackParticleContainer* offlineparticles;
   const xAOD::TruthParticleContainer* truthparticles;
-  const xAOD::TrackParticle* matched_track;
+  const xAOD::TrackParticleContainer* offlineparticles;
+  const xAOD::TrackParticleContainer* trig_FTFparticles;
+  const xAOD::TrackParticleContainer* trig_LRTparticles;
   const xAOD::TruthParticle* matched_truth;
+  const xAOD::TrackParticle* matched_track;
+  Float_t mindr;
 
-  ANA_CHECK (evtStore() -> retrieve (offlineparticles, "InDetTrackParticles"));
+  
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
-  ANA_MSG_INFO("Found Offline, size is " << offlineparticles->size());
   ANA_MSG_INFO("Found Truth, size is " << truthparticles->size());
 
+  if (m_offline_read) {
+    ANA_CHECK (evtStore() -> retrieve (trig_FTFparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScan_FTF"));
+    ANA_MSG_INFO("Found FTF, size is " << trig_FTFparticles->size());
+  }
+  if (m_trigger_read){
+    ANA_CHECK (evtStore() -> retrieve (trig_LRTparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScanlrt_FTF"));
+    ANA_MSG_INFO("Found LRT, size is " << trig_LRTparticles->size());
+  }
 
   //truth loop
   //finds only those that goes STop -> RHadron -> muon
@@ -206,58 +216,58 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
 
 
               ////Offline Tracks
-              Float_t mindr = 2000;
-              matched_track = nullptr;
-              matched_truth = gchild;
-
               if(m_offline_read){
-                
-              }
-              //Track Loop
-              for (const xAOD::TrackParticle* offline : *offlineparticles){
-                track_test.push_back(offline); //sanity check
+                mindr = 2000;
+                matched_track = nullptr;
+                matched_truth = gchild;
+  
+                //Track Loop
+                for (const xAOD::TrackParticle* offline : *offlineparticles){
+                  track_test.push_back(offline); //sanity check
 
-                //Monitoring Histograms
-                hist ("h_phiInOffline")->Fill(offline -> phi());
-                hist ("h_etaInOffline")->Fill(offline -> eta());
+                  //Monitoring Histograms
+                  hist ("h_phiInOffline")->Fill(offline -> phi());
+                  hist ("h_etaInOffline")->Fill(offline -> eta());
+                  
+                  //finds matched track
+                  if(mindr > calcdr(gchild, offline)){
+                    mindr = calcdr(gchild, offline);
+                    matched_track = offline;
+                  }
+                } //end of track loop
                 
-                //finds matched track
-                if(mindr > calcdr(gchild, offline)){
-                  mindr = calcdr(gchild, offline);
-                  matched_track = offline;
+                if (mindr == 2000) matched_truth = nullptr;
+
+                //Cuts
+                Bool_t passedflag = true;
+                if( abs((matched_truth->eta() - matched_track->eta())) > m_etacut  ||  
+                    abs((matched_truth->phi() - matched_track->phi())) > m_phicut  ){
+                  passedflag = false;
                 }
-              } //end of track loop
-              
-              if (mindr == 2000) matched_truth = nullptr;
+                
+                //Result of matching truth muon tracks with the reco tracks
+                hist ("h_drvalues_offline")->Fill (mindr);
 
-              //Cuts
-              Bool_t passedflag = true;
-              if( abs((matched_truth->eta() - matched_track->eta())) > m_etacut  ||  
-                  abs((matched_truth->phi() - matched_track->phi())) > m_phicut  ){
-                passedflag = false;
+                hist ("h_d0truth_offline")->Fill (truthd0(matched_truth));
+                hist ("h_d0track_offline")->Fill (matched_track -> d0());
+                hist ("h_d0diff_offline")->Fill ( matched_track -> d0() - truthd0(matched_truth));
+        
+                hist ("h_etatruth_offline")->Fill (matched_truth -> eta());
+                hist ("h_etatrack_offline")->Fill (matched_track -> eta());
+                hist ("h_pTtruth_offline")->Fill (matched_truth -> pt() / 1000000);
+                hist ("h_pTtrack_offline")->Fill (matched_track -> pt() / 1000000);
+
+                hist ("h_d0truthvtrack_offline")->Fill (matched_track -> d0(), truthd0(matched_truth));
+
+                pEff->Fill(true,matched_track -> d0());
+                
+                ANA_MSG_INFO("Track Pointer: " << matched_track << " Truth Pointer: " << gchild << " mindr: " << mindr);
               }
-              
-              //Result of matching truth muon tracks with the reco tracks
-              hist ("h_drvalues")->Fill (mindr);
-
-              hist ("h_d0truth")->Fill (truthd0(matched_truth));
-              hist ("h_d0track")->Fill (matched_track -> d0());
-              hist ("h_d0diff")->Fill ( matched_track -> d0() - truthd0(matched_truth));
-      
-              hist ("h_etatruth")->Fill (matched_truth -> eta());
-              hist ("h_etatrack")->Fill (matched_track -> eta());
-              hist ("h_pTtruth")->Fill (matched_truth -> pt() / 1000000);
-              hist ("h_pTtrack")->Fill (matched_track -> pt() / 1000000);
-
-              hist ("h_d0truthvtrack")->Fill (matched_track -> d0(), truthd0(matched_truth));
-
-              pEff->Fill(true,matched_track -> d0());
-              
-              ANA_MSG_INFO("Track Pointer: " << matched_track << " Truth Pointer: " << gchild << " mindr: " << mindr);
-
 
 
               ////FTF Tracks
+
+
               ////LRT Tracks
             }
           }// end of gchild loop
@@ -285,9 +295,9 @@ StatusCode MyxAODAnalysis :: finalize ()
 
 
 
-  hist ("h_d0eff") ->Divide(hist ("h_d0track"), hist ("h_d0truth"));
-  hist ("h_etaeff") ->Divide(hist ("h_etatrack"), hist ("h_etatruth"));
-  //hist ("h_pTeff") -> Fill Divide(hist ("h_pTtrack"), hist ("h_pTtruth"));
+  hist ("h_d0eff") ->Divide(hist ("h_d0track_offline"), hist ("h_d0truth_offline"));
+  hist ("h_etaeff") ->Divide(hist ("h_etatrack_offline"), hist ("h_etatruth_offline"));
+  //hist ("h_pTeff") -> Fill Divide(hist ("h_pTtrack_offline"), hist ("h_pTtruth_offline"));
 
   //TCanvas *c2 = new TCanvas("c2"," Efficiency ",50,50,1680,1050);
   //c1 = new TCanvas("c","c",1680,1050);
