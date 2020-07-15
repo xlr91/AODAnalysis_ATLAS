@@ -30,6 +30,7 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 }
 
 Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
+
   double_t result= pow((x1->x() - x2->x()), 2.0) + pow((x1->y() - x2->y()), 2.0) + pow((x1->z() - x2->z()), 2.0);
   return sqrt(result);
 }
@@ -171,9 +172,10 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
 
   //Access InDetTrackParticles
   const xAOD::TruthParticleContainer* truthparticles;
-  const xAOD::TrackParticleContainer* offlineparticles;
+  const xAOD::TrackParticleContainer* offline_particles;
   const xAOD::TrackParticleContainer* trig_FTFparticles;
   const xAOD::TrackParticleContainer* trig_LRTparticles;
+  
   const xAOD::TruthParticle* matched_truth;
   const xAOD::TrackParticle* matched_track;
   Float_t mindr;
@@ -183,10 +185,14 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
   ANA_MSG_INFO("Found Truth, size is " << truthparticles->size());
 
   if (m_offline_read) {
-    ANA_CHECK (evtStore() -> retrieve (trig_FTFparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScan_FTF"));
-    ANA_MSG_INFO("Found FTF, size is " << trig_FTFparticles->size());
+    
+    ANA_CHECK (evtStore() -> retrieve (offline_particles, "InDetTrackParticles"));
+    ANA_MSG_INFO("Found Offline, size is " << offline_particles->size());
   }
   if (m_trigger_read){
+
+    ANA_CHECK (evtStore() -> retrieve (trig_FTFparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScan_FTF"));
+    ANA_MSG_INFO("Found FTF, size is " << trig_FTFparticles->size());
     ANA_CHECK (evtStore() -> retrieve (trig_LRTparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScanlrt_FTF"));
     ANA_MSG_INFO("Found LRT, size is " << trig_LRTparticles->size());
   }
@@ -202,6 +208,11 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
           for (int igchild=0; igchild< child->nChildren() ; igchild++) {
             
             const xAOD::TruthParticle* gchild=child->child(igchild);
+            if(gchild == nullptr){
+              ANA_MSG_INFO("Nullptr alert");
+              continue;
+            }
+            //ANA_MSG_INFO("Gchild PDGID : " << gchild->pdgId());
             if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
 
               hist ("h_muon_parent")->Fill (gchild -> nParents()); //sanity check (unused)
@@ -211,6 +222,11 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
               const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
               const xAOD::TruthVertex* cproVtx = child->prodVtx(); 
               const xAOD::TruthVertex* cdecVtx = child->decayVtx(); 
+
+              if (tproVtx == nullptr || tdecVtx == nullptr || cproVtx == nullptr || cdecVtx== nullptr){
+                 ANA_MSG_INFO("nullptr alert"); //ask why
+                 continue;
+              }
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
 
@@ -222,7 +238,7 @@ ANA_CHECK (evtStore()->retrieve (jets, "AntiKt4EMTopoJets"));
                 matched_truth = gchild;
   
                 //Track Loop
-                for (const xAOD::TrackParticle* offline : *offlineparticles){
+                for (const xAOD::TrackParticle* offline : *offline_particles){
                   track_test.push_back(offline); //sanity check
 
                   //Monitoring Histograms
