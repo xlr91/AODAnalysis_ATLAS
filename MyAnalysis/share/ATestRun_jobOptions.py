@@ -1,8 +1,21 @@
+test = 1
+
+if test == 1:
+    testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
+    Tflag = False
+
+if test == 2:
+    testFile = "/afs/cern.ch/user/b/baines/work/public/LRT/METtest/AOD.pool.root"
+    Tflag = True
+    
+
+
+
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
 
 #testFile = os.getenv("ALRB_TutorialData") + '/r9315/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
-testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
+#testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
 #testFile = "/afs/cern.ch/user/b/baines/work/public/LRT/METtest/AOD.pool.root"
 
 #override next line on command line with: --filesInput=XXX
@@ -22,8 +35,8 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 # later on we'll add some configuration options for our algorithm that go here
 #alg.ElectronPtCut = 30000.0
 #alg.SampleName = 'Zee'
-alg.OfflineRead = True
-alg.TriggerRead = False
+alg.OfflineRead = not Tflag
+alg.TriggerRead = Tflag
 # Add our algorithm to the main alg sequence
 athAlgSeq += alg
 
