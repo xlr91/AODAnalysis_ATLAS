@@ -1,4 +1,4 @@
-test = 1
+test = 2
 
 if test == 1:
     testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
@@ -42,7 +42,7 @@ athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 50
+theApp.EvtMax = 500000
 
 #Msg limits
 MessageSvc.defaultLimit = 100000000  # all messages 

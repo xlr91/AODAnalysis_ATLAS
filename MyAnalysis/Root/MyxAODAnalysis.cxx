@@ -154,9 +154,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_All", "truth_d0_vs_All_d0", 300, -10, 10, 300, -50, 50))); 
 
   
-  ANA_CHECK(book(TH1F("h_d0eff_n", "Efficiency_function_of_d0_n", 300, -50, 50)));
-  ANA_CHECK(book(TH1F("h_d0eff_d", "Efficiency_function_of_d0_d", 300, -50, 50)));
-  ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 300, -50, 50)));
   
 
   //ANA_CHECK(regEfficiency("testthign", TEfficiency("testeff","Efficiency (Unmanaged)",300, -30, 30)));
@@ -165,7 +165,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   //  ANA_CHECK(pEff = new TEfficiency("Efficiency","Efficiency (Unmanaged)",300, -30, 30));
 
   /*
-  //ANA_CHECK(book(TH1F("h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
+  //ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
   //ANA_CHECK(book(TH1F("h_etaeff", "Efficiency_function_of_eta", 300, 0, 5)));
   ///ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 10)));
   */
@@ -287,8 +287,8 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("truth_h_pT")->Fill (gchild -> pt() / 1000000);
 
                 //Cuts
-                passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
-                //passedflag_ofl = cut2(mindr, m_drcut);
+                //passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
+                passedflag_ofl = cut2(mindr, m_drcut);
 
                 if (passedflag_ofl){
                   hist ("offline_h_dr")->Fill (mindr);
@@ -324,10 +324,11 @@ StatusCode MyxAODAnalysis :: execute ()
                   }
                 } //end of FTF loop
 
-
+                //oh hey we can  implement a switch case here
+                ///check with previous efficiency plots
                 //cuts
-                passedflag_ftf = cut1(gchild, matched_FTF, m_etacut, m_phicut);
-                //passedflag_ftf = cut2(mindr, m_drcut);
+                //passedflag_ftf = cut1(gchild, matched_FTF, m_etacut, m_phicut);
+                passedflag_ftf = cut2(mindr, m_drcut);
                 if (passedflag_ftf){
                   hist ("FTF_h_dr")->Fill (mindr);
                   hist ("FTF_h_d0")->Fill (matched_FTF -> d0());
@@ -344,7 +345,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
                 }
                 
-                hist ("h_d0eff_d") -> Fill(matched_FTF -> d0());
+                hist ("trig_h_d0eff_d") -> Fill(matched_FTF -> d0());
 
                 ///////////LRT
                 mindr = 2000;
@@ -364,8 +365,8 @@ StatusCode MyxAODAnalysis :: execute ()
                 } //end of LRT loop
                 
                 //cuts
-                passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
-                //passedflag_lrt = cut2(mindr, m_drcut);
+                //passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
+                passedflag_lrt = cut2(mindr, m_drcut);
                 if (passedflag_lrt){
                   hist ("LRT_h_dr")->Fill (mindr);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
@@ -385,10 +386,11 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 ///efficiency plot uses the truth values, but 'yes/no' on the booleans
                 if(passedflag_ftf || passedflag_lrt){
-                  hist ("h_d0eff_n") -> Fill(truthd0val);
+                  hist ("trig_h_d0eff_n") -> Fill(truthd0val);
                 }
 
-                hist ("h_d0eff_d") -> Fill(truthd0val);
+                hist ("trig_h_d0eff_d") -> Fill(truthd0val);
+                
               }
 
 
@@ -416,16 +418,15 @@ StatusCode MyxAODAnalysis :: finalize ()
   // submission node after all your histogram outputs have been
   // merged.
 
-  //hist ("h_d0eff_n") -> Add(hist("LRT_h_d0"));
-  //hist ("h_d0eff_n") -> Add(hist("FTF_h_d0"));
 
 
-  hist ("h_d0eff") -> Divide(hist ("h_d0eff_n"), hist ("h_d0eff_d"));
 
-  hist ("h_d0eff") ->SetMarkerStyle(3);
-  //hist ("h_d0eff") -> SetOption("E1*");
+  hist ("trig_h_d0eff") -> Divide(hist ("trig_h_d0eff_n"), hist ("trig_h_d0eff_d"));
 
-  //hist ("h_d0eff") ->Divide(hist ("h_d0eff_n"), hist ("truth_h_d0"));
+  hist ("trig_h_d0eff") ->SetMarkerStyle(3);
+  hist ("trig_h_d0eff") -> SetOption("E1*");
+
+
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_LRT"));
   //hist ("h_etaeff") ->Divide(hist ("offline_h_eta"), hist ("truth_h_eta"));
