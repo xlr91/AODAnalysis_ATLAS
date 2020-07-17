@@ -1,4 +1,12 @@
+
+
+#Job Properties
 test = 2
+J_CUTNUMBER = 2
+
+
+
+
 
 if test == 1:
     testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
@@ -37,6 +45,8 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 #alg.SampleName = 'Zee'
 alg.OfflineRead = not Tflag
 alg.TriggerRead = Tflag
+
+alg.cutnumber = J_CUTNUMBER
 # Add our algorithm to the main alg sequence
 athAlgSeq += alg
 

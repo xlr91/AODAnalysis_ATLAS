@@ -26,6 +26,8 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 
   declareProperty( "TriggerRead", m_trigger_read = true, "If it reads the trigger containers");
   declareProperty( "OfflineRead", m_offline_read = true, "If it reads the offline containers");
+
+  declareProperty( "cutnumber", m_cut = 2, "Choose what kind of cut you want");
 }
 
 Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
@@ -108,6 +110,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("truth_h_phi", "dphi values for truth tracks", 300, -0.001, 0.001)));
   ANA_CHECK(book(TH1F("truth_h_dphi", "dphi values for truth tracks", 300, -0.001, 0.001)));
   ANA_CHECK(book(TH1F("truth_h_deta", "deta values for truth tracks", 300, -5, 5)));
+  ANA_CHECK(book(TH2F("truth_h_phivTDLength", "Phi vs Transv. DecLengths for offline", 300, 0, 150, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("truth_h_dphivTDLength", "dPhi vs Transv. DecLengths for truth", 300, 0, 150, 300, -0.001, 0.001)));
 
   //Offline Histograms
@@ -122,24 +125,24 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("offline_h_dphivTDLength", "dPhi vs Transv. DecLengths for offline", 300, 0, 150, 300, -0.001, 0.001)));
 
   //FTF Histograms
-  ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 1)));
   ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -50, 50))); //-30/30
   ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("FTF_h_phi", "phi values for FTF tracks", 300, -3.2, 3.2)));
-  ANA_CHECK(book(TH1F("FTF_h_dphi", "dphi values for FTF tracks", 300, -0.001, 0.001)));
-  ANA_CHECK(book(TH1F("FTF_h_deta", "deta values for FTF tracks", 300, -0.003, 0.003)));
+  ANA_CHECK(book(TH1F("FTF_h_dphi", "dphi values for FTF tracks", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("FTF_h_deta", "deta values for FTF tracks", 300, -1, 1)));
   ANA_CHECK(book(TH2F("FTF_h_phivTDLength", "dPhi vs Transv. DecLengths for FTF", 300, 0, 150, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("FTF_h_dphivTDLength", "dPhi vs Transv. DecLengths for FTF", 300, 0, 150, 300, -0.001, 0.001)));
 
   //LRT Histograms
-  ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 100, 0, 0.005)));
+  ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 1)));
   ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -50, 50)));
   ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("LRT_h_phi", "phi values for LRT tracks", 300, -3.2, 3.2)));
-  ANA_CHECK(book(TH1F("LRT_h_dphi", "dphi values for LRT tracks", 300, -0.001, 0.001)));
-  ANA_CHECK(book(TH1F("LRT_h_deta", "deta values for LRT tracks", 300, -0.003, 0.003)));
+  ANA_CHECK(book(TH1F("LRT_h_dphi", "dphi values for LRT tracks", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("LRT_h_deta", "deta values for LRT tracks", 300, -1, 1)));
   ANA_CHECK(book(TH2F("LRT_h_phivTDLength", "dPhi vs Transv. DecLengths for LRT", 300, 0, 150, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("LRT_h_dphivTDLength", "dPhi vs Transv. DecLengths for LRT", 300, 0, 150, 300, -0.001, 0.001)));
 
@@ -154,9 +157,34 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_All", "truth_d0_vs_All_d0", 300, -10, 10, 300, -50, 50))); 
 
   
+
+  ANA_CHECK(book(TH1F("offl_h_d0eff_n", "Efficiency_function_of_d0_n", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("offl_h_d0eff_d", "Efficiency_function_of_d0_d", 300, -50, 50)));
+  ANA_CHECK(book(TH1F("offl_h_d0eff", "Efficiency_function_of_d0", 300, -50, 50)));
+
+  ANA_CHECK(book(TH1F("offl_h_etaeff_n", "Efficiency_function_of_eta_n", 300, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("offl_h_etaeff_d", "Efficiency_function_of_eta_d", 300, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("offl_h_etaeff", "Efficiency_function_of_eta", 300, -3.2, 3.2)));
+
+  ANA_CHECK(book(TH1F("offl_h_pTeff_n", "Efficiency_function_of_pT_n", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("offl_h_pTeff_d", "Efficiency_function_of_pT_d", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("offl_h_pTeff", "Efficiency_function_of_pT", 300, 0, 2)));
+
+
+
   ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 300, -50, 50)));
   ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 300, -50, 50)));
   ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 300, -50, 50)));
+
+  ANA_CHECK(book(TH1F("trig_h_etaeff_n", "Efficiency_function_of_eta_n", 300, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("trig_h_etaeff_d", "Efficiency_function_of_eta_d", 300, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("trig_h_etaeff", "Efficiency_function_of_eta", 300, -3.2, 3.2)));
+
+  ANA_CHECK(book(TH1F("trig_h_pTeff_n", "Efficiency_function_of_pT_n", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 300, 0, 2)));
+  ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 300, 0, 2)));
+  
+
   
 
   //ANA_CHECK(regEfficiency("testthign", TEfficiency("testeff","Efficiency (Unmanaged)",300, -30, 30)));
@@ -177,6 +205,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   
 
   ANA_MSG_INFO("Offline: " << m_offline_read << " Trigger Read: " <<  m_trigger_read);
+  ANA_MSG_INFO("Cut: " << m_cut);
 
   return StatusCode::SUCCESS;
 }
@@ -288,7 +317,23 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 //Cuts
                 //passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
-                passedflag_ofl = cut2(mindr, m_drcut);
+                //passedflag_ofl = cut2(mindr, m_drcut);
+
+                switch(m_cut) {
+                  case 0:
+                    passedflag_ofl = true;
+                    break;
+                  case 1:
+                    passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
+                    break;
+                  case 2:
+                    passedflag_ofl = cut2(mindr, m_drcut);
+                    break;
+                  default:
+                    passedflag_ofl = true;
+                }
+
+                ANA_MSG_INFO("Cut Chosen is " << m_cut);
 
                 if (passedflag_ofl){
                   hist ("offline_h_dr")->Fill (mindr);
@@ -304,8 +349,16 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("offline_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_offline->phi());
                   
                   hist ("offline_h_phivTDLength")->Fill (RhTD_Length, matched_offline->phi());
+
+                  hist ("offl_h_d0eff_n") -> Fill(truthd0val);
+                  hist ("offl_h_etaeff_n") -> Fill(gchild->eta());
+                  hist ("offl_h_pTeff_n") -> Fill(gchild->pt() / 1000000);
                 }
 
+
+                hist ("offl_h_d0eff_d") -> Fill(truthd0val);
+                hist ("offl_h_etaeff_d") -> Fill(gchild->eta());
+                hist ("offl_h_pTeff_d") -> Fill(gchild->pt() / 1000000);
                 //pEff->Fill(true,matched_offline -> d0());
                 
                 ANA_MSG_INFO("Track Pointer: " << matched_offline << " Truth Pointer: " << gchild << " mindr: " << mindr);
@@ -324,11 +377,30 @@ StatusCode MyxAODAnalysis :: execute ()
                   }
                 } //end of FTF loop
 
-                //oh hey we can  implement a switch case here
+                //oh hey we can  implement a case here
                 ///check with previous efficiency plots
                 //cuts
                 //passedflag_ftf = cut1(gchild, matched_FTF, m_etacut, m_phicut);
-                passedflag_ftf = cut2(mindr, m_drcut);
+                //passedflag_ftf = cut2(mindr, m_drcut);
+
+
+                switch(m_cut) {
+                  case 0:
+                    passedflag_ftf = true;
+                    break;
+                  case 1:
+                    passedflag_ftf = cut1(gchild, matched_FTF, m_etacut, m_phicut);
+                    break;
+                  case 2:
+                    passedflag_ftf = cut2(mindr, m_drcut);
+                    break;
+                  default:
+                    passedflag_ftf = true;
+                }
+
+  
+
+
                 if (passedflag_ftf){
                   hist ("FTF_h_dr")->Fill (mindr);
                   hist ("FTF_h_d0")->Fill (matched_FTF -> d0());
@@ -345,7 +417,6 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
                 }
                 
-                hist ("trig_h_d0eff_d") -> Fill(matched_FTF -> d0());
 
                 ///////////LRT
                 mindr = 2000;
@@ -366,7 +437,25 @@ StatusCode MyxAODAnalysis :: execute ()
                 
                 //cuts
                 //passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
-                passedflag_lrt = cut2(mindr, m_drcut);
+                ///passedflag_lrt = cut2(mindr, m_drcut);
+                
+                switch(m_cut) {
+                  case 0:
+                    passedflag_lrt = true;
+                    break;
+                  case 1:
+                    passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
+                    break;
+                  case 2:
+                    passedflag_lrt = cut2(mindr, m_drcut);
+                    break;
+                  default:
+                    passedflag_lrt = true;
+                }
+
+
+
+
                 if (passedflag_lrt){
                   hist ("LRT_h_dr")->Fill (mindr);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
@@ -387,9 +476,13 @@ StatusCode MyxAODAnalysis :: execute ()
                 ///efficiency plot uses the truth values, but 'yes/no' on the booleans
                 if(passedflag_ftf || passedflag_lrt){
                   hist ("trig_h_d0eff_n") -> Fill(truthd0val);
+                  hist ("trig_h_etaeff_n") -> Fill(gchild->eta());
+                  hist ("trig_h_pTeff_n") -> Fill(gchild->pt() / 1000000);
                 }
 
                 hist ("trig_h_d0eff_d") -> Fill(truthd0val);
+                hist ("trig_h_etaeff_d") -> Fill(gchild->eta());
+                hist ("trig_h_pTeff_d") -> Fill(gchild->pt() / 1000000);
                 
               }
 
@@ -422,9 +515,16 @@ StatusCode MyxAODAnalysis :: finalize ()
 
 
   hist ("trig_h_d0eff") -> Divide(hist ("trig_h_d0eff_n"), hist ("trig_h_d0eff_d"));
-
   hist ("trig_h_d0eff") ->SetMarkerStyle(3);
-  hist ("trig_h_d0eff") -> SetOption("E1*");
+  hist ("trig_h_d0eff") -> SetOption("P0"); //*H
+
+  hist ("trig_h_etaeff") -> Divide(hist ("trig_h_etaeff_n"), hist ("trig_h_etaeff_d"));
+  hist ("trig_h_etaeff") ->SetMarkerStyle(3);
+  hist ("trig_h_etaeff") -> SetOption("P0"); //LEGO
+
+  hist ("trig_h_pTeff") -> Divide(hist ("trig_h_pTeff_n"), hist ("trig_h_pTeff_d"));
+  hist ("trig_h_pTeff") ->SetMarkerStyle(3);
+  hist ("trig_h_pTeff") -> SetOption("P0");
 
 
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));

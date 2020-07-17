@@ -50,6 +50,8 @@ private:
 
   bool m_offline_read;
   bool m_trigger_read;
+
+  int m_cut;
   
 
 };
