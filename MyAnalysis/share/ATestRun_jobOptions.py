@@ -1,22 +1,25 @@
 
 
 #Job Properties
-test = 2
-J_CUTNUMBER = 2
-
-
-
+test = 3
+J_CUTNUMBER = 1
 
 
 if test == 1:
     testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
+    OFlag = True
     Tflag = False
+    
 
 if test == 2:
     testFile = "/afs/cern.ch/user/b/baines/work/public/LRT/METtest/AOD.pool.root"
+    OFlag = False
     Tflag = True
     
-
+if test == 3:
+    testFile = "/scratch/baines/signal_tau1nsAOD/AOD.pool.root"
+    OFlag = True
+    Tflag = True
 
 
 
@@ -43,7 +46,7 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 # later on we'll add some configuration options for our algorithm that go here
 #alg.ElectronPtCut = 30000.0
 #alg.SampleName = 'Zee'
-alg.OfflineRead = not Tflag
+alg.OfflineRead = OFlag
 alg.TriggerRead = Tflag
 
 alg.cutnumber = J_CUTNUMBER
