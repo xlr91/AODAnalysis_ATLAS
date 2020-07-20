@@ -21,6 +21,11 @@ if test == 3:
     OFlag = True
     Tflag = True
 
+if test == 4:
+    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
+    OFlag = False
+    Tflag = True
+
 
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
