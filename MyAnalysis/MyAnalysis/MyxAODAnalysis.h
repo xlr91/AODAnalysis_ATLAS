@@ -30,8 +30,7 @@ public:
 
   //Cuts 
   bool cut1(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p, Float_t eta_c, Float_t eta_p);
-  bool cut2(Float_t mndr, Float_t cut_c);
-
+  bool cut2(Float_t mndq, Float_t cut_c);
   
 private:
   // Configuration, and any other types of variables go here.
@@ -47,6 +46,7 @@ private:
   float m_etacut;
   float m_phicut; 
   float m_drcut; 
+  float m_dzcut; 
 
   bool m_offline_read;
   bool m_trigger_read;

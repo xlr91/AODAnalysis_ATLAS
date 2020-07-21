@@ -2,7 +2,11 @@
 
 #Job Properties
 test = 3
-J_CUTNUMBER = 1
+J_CUTNUMBER = 3
+DRCUTnumber = 0.15
+DZCUTnumber = 150
+ETACUTnumber = 0.1
+
 
 
 if test == 1:
@@ -17,13 +21,13 @@ if test == 2:
     Tflag = True
     
 if test == 3:
-    testFile = "/scratch/baines/signal_tau1nsAOD/AOD.pool.root"
+    testFile = "/scratch/baines/signal_tau1nsAOD/AOD.pool.root" 
     OFlag = True
     Tflag = True
 
 if test == 4:
-    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
-    OFlag = False
+    testFile = "/scratch/baines/signal_tau1nsAOD/test11/AOD.pool.root"
+    OFlag = True
     Tflag = True
 
 
@@ -55,6 +59,10 @@ alg.OfflineRead = OFlag
 alg.TriggerRead = Tflag
 
 alg.cutnumber = J_CUTNUMBER
+
+alg.dzcut = DZCUTnumber
+alg.drcut = DRCUTnumber
+alg.etacut = ETACUTnumber
 # Add our algorithm to the main alg sequence
 athAlgSeq += alg
 
