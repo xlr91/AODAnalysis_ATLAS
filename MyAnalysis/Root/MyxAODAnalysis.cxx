@@ -118,7 +118,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("truth_h_dphivTDLength", "dPhi vs Transv. DecLengths for truth", 300, 0, 20, 300, -0.001, 0.001)));
 
   //Offline Histograms
-  ANA_CHECK(book(TH1F("offline_h_dr", "dR values for offline tracks", 100, 0, 0.5)));
+  ANA_CHECK(book(TH1F("offline_h_dr", "dR values for offline tracks", 100, 0, 0.15)));
   ANA_CHECK(book(TH1F("offline_h_d0", "d0 values for offline tracks", 300, -30, 30)));
   ANA_CHECK(book(TH1F("offline_h_eta", "eta values for offline tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("offline_h_pT", "pT values for offline tracks", 300, 0, 2)));
@@ -130,7 +130,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("offline_h_dphivTDLength", "dPhi vs Transv. DecLengths for offline", 300, 0, 40, 300, -0.001, 0.001)));
 
   //FTF Histograms
-  ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.5)));
+  ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -100, 100))); //-30/30
   ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
@@ -144,7 +144,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("FTF_h_dphivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 40, 300, -0.001, 0.001)));
 
   //LRT Histograms
-  ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 0.5)));
+  ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -100, 100)));
   ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
@@ -187,9 +187,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -100, 100)));
 
 
-  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -100, 100)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -100, 100)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 50, -100, 100)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -70, 70)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -70, 70)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 50, -70, 70)));
 
   ANA_CHECK(book(TH1F("trig_h_etaeff_n", "Efficiency_function_of_eta_n", 50, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("trig_h_etaeff_d", "Efficiency_function_of_eta_d", 50, -3.2, 3.2)));
@@ -202,6 +202,13 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_d0_n", 50, 0, 100)));
   ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_d0_d", 50, 0, 100)));
   ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_d0", 50, 0, 100)));
+
+  ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 50, -40, 40)));
+
+
+
   
 
   
@@ -367,6 +374,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 }
 
                 ANA_MSG_INFO("Cut Chosen is " << m_cut);
+                ANA_MSG_INFO("Passed ofl cut: " << passedflag_ofl);
 
                 if (passedflag_ofl){
                   hist ("offline_h_dr")->Fill (mindr);
@@ -548,6 +556,18 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("trig_h_pTeff_d") -> Fill(gchild->pt() / 1000);
                 hist ("trig_h_TDLeff_d") -> Fill(decaylength(cproVtx, cdecVtx));
                 
+              }
+
+              //trig wrt off
+              if (m_offline_read && m_trigger_read){
+                ///at this point it found the matched offline and matched trigger
+                ///so fill in the denominator if the current offline track passed thru the cut 
+
+                if(passedflag_ofl) {
+                  hist("tgof_h_d0eff_d") -> Fill(matched_offline -> d0());
+                  //if all three matches then fill it in
+                  if(passedflag_ftf || passedflag_lrt) hist("tgof_h_d0eff_n") -> Fill(matched_offline -> d0());
+                }
               }
 
 
