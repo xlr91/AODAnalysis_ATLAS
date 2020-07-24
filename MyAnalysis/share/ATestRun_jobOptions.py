@@ -1,8 +1,8 @@
 
 
 #Job Properties
-test = 3 #3
-J_CUTNUMBER = 0 #2
+test = 4 #3
+J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
 ETACUTnumber = 0.1
@@ -27,7 +27,7 @@ if test == 3:
 
 if test == 4:
     testFile = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root"
-    OFlag = True
+    OFlag = False
     Tflag = True
 
 

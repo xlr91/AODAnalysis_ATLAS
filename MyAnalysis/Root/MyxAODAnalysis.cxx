@@ -187,9 +187,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -100, 100)));
 
 
-  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -70, 70)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -70, 70)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 50, -70, 70)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 100, -300, 300)));
 
   ANA_CHECK(book(TH1F("trig_h_etaeff_n", "Efficiency_function_of_eta_n", 50, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("trig_h_etaeff_d", "Efficiency_function_of_eta_d", 50, -3.2, 3.2)));
@@ -199,9 +199,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 2000)));
   ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 50, 0, 2000)));
 
-  ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_d0_n", 50, 0, 100)));
-  ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_d0_d", 50, 0, 100)));
-  ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_d0", 50, 0, 100)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_d0_n", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_d0_d", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_d0", 100, 0, 1000)));
 
   ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -40, 40)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -40, 40)));
