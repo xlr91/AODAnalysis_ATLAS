@@ -199,13 +199,17 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 2000)));
   ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 50, 0, 2000)));
 
-  ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_d0_n", 100, 0, 1000)));
-  ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_d0_d", 100, 0, 1000)));
-  ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_d0", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_TDL_n", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
 
   ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -40, 40)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -40, 40)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 50, -40, 40)));
+
+  ANA_CHECK(book(TH1F("trig_h_z0eff_n", "Efficiency_function_of_z0_n", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("trig_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("trig_h_z0eff", "Efficiency_function_of_z0", 100, -500, 500)));
 
 
 
@@ -286,6 +290,7 @@ StatusCode MyxAODAnalysis :: execute ()
   //truth loop
   //finds only those that goes STop -> RHadron -> muon
   for (const xAOD::TruthParticle* truth : *truthparticles) {
+    //ANA_MSG_INFO("PDGID" << truth->absPdgId());
     if (truth->absPdgId() == 1000006) {     
       if (truth->nChildren() > 1) {
         for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
@@ -322,9 +327,6 @@ StatusCode MyxAODAnalysis :: execute ()
               //ANA_MSG_INFO("PV x: " << cproVtx -> x() << " y: " << cproVtx -> y()  << " z: " << cproVtx -> z() );
               hist ("truth_h_eta")->Fill (gchild -> eta());                
               hist ("truth_h_pT")->Fill (gchild -> pt() / 1000);
-
-
-              
 
 
               ////Offline Tracks
@@ -549,12 +551,14 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("trig_h_etaeff_n") -> Fill(gchild->eta());
                   hist ("trig_h_pTeff_n") -> Fill(gchild->pt() / 1000);
                   hist ("trig_h_TDLeff_n") -> Fill(decaylength(cproVtx, cdecVtx));
+                  hist ("trig_h_z0eff_n") -> Fill(cdecVtx->z());
                 }
 
                 hist ("trig_h_d0eff_d") -> Fill(truthd0val);
                 hist ("trig_h_etaeff_d") -> Fill(gchild->eta());
                 hist ("trig_h_pTeff_d") -> Fill(gchild->pt() / 1000);
                 hist ("trig_h_TDLeff_d") -> Fill(decaylength(cproVtx, cdecVtx));
+                hist ("trig_h_z0eff_d") -> Fill(cdecVtx->z());
                 
               }
 
@@ -576,6 +580,8 @@ StatusCode MyxAODAnalysis :: execute ()
         } //end of child loop
       } 
     } 
+
+
   } //end of truth loop
   return StatusCode::SUCCESS;
 }

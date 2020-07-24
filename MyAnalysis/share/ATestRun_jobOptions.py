@@ -1,32 +1,40 @@
 
 
 #Job Properties
-test = 4 #3
+test = 5 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
 ETACUTnumber = 0.1
 
 
-
+#original AOD file to test on (Offline only)
 if test == 1:
     testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
     OFlag = True
     Tflag = False
     
-
+#original MET file to test on (trigger only)
 if test == 2:
     testFile = "/afs/cern.ch/user/b/baines/work/public/LRT/METtest/AOD.pool.root"
     OFlag = False
     Tflag = True
     
+#50 mm d0
 if test == 3:
     testFile = "/scratch/baines/signal_tau1nsAOD/AOD.pool.root" 
     OFlag = True
     Tflag = True
 
+#300 mm d0 (can chagne)
 if test == 4:
     testFile = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root"
+    OFlag = False
+    Tflag = True
+
+#muons with PU 40 with lrttest=4 (50mm d0Max)
+if test == 5:
+    testFile = "/scratch/baines/muonaod/AOD.pool.root"
     OFlag = False
     Tflag = True
 
