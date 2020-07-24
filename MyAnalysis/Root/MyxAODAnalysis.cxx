@@ -186,6 +186,16 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
 
+
+
+  ANA_CHECK(book(TH1F("FTF_h_d0fakes_n", "Fakes_function_of_d0_n_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0fakes_d", "Fakes_function_of_d0_d_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0fakes", "Fakes_function_of_d0_FTF", 50, -40, 40)));
+
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes_n", "Fakes_function_of_d0_n_LRT", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes_d", "Fakes_function_of_d0_d_LRT", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes", "Fakes_function_of_d0_LRT", 50, -40, 40)));
+
   ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
@@ -308,7 +318,7 @@ StatusCode MyxAODAnalysis :: execute ()
               continue;
             }
 
-            if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
+            if (gchild->absPdgId() == 11){ // at this point everything below are muons from RHadrons from Stops
 
               //Get the decay lengths of stop (expected to be 0) and RHadron (expected to be about 20 mm)
               const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
@@ -425,7 +435,16 @@ StatusCode MyxAODAnalysis :: execute ()
                     mindr = calcdr(gchild, FTF_T);
                     matched_FTF = FTF_T;
                   }
+
+                  if(calcdr(gchild, FTF_T) < 0.01){
+                    hist ("FTF_h_d0fakes_d") -> Fill(truthd0val);
+                  }
+                  ///if mindr < 0.01 of the thingy
+                  ///fill in the histograms 
+                  
                 } //end of FTF loop
+
+                hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
 
                 //chooses what kind of cuts is used
                 switch(m_cut) {
@@ -495,8 +514,13 @@ StatusCode MyxAODAnalysis :: execute ()
                     mindr = calcdr(gchild, LRT_T);
                     matched_LRT = LRT_T;
                   }
+
+                  if(calcdr(gchild, LRT_T) < 0.01){
+                    hist ("LRT_h_d0fakes_d") -> Fill(truthd0val);
+                  }
                 } //end of LRT loop
-                
+
+                hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
                 //cuts
                 //passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
                 ///passedflag_lrt = cut2(mindr, m_drcut);
@@ -623,6 +647,14 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist ("trig_h_pTeff") -> Divide(hist ("trig_h_pTeff_n"), hist ("trig_h_pTeff_d"));
   hist ("trig_h_pTeff") ->SetMarkerStyle(3);
   hist ("trig_h_pTeff") -> SetOption("P0");
+
+  hist ("FTF_h_d0fakes") -> Divide(hist ("FTF_h_d0fakes_n"), hist ("FTF_h_d0fakes_d"));
+  hist ("FTF_h_d0fakes") ->SetMarkerStyle(3);
+  hist ("FTF_h_d0fakes") -> SetOption("P0");
+
+  hist ("LRT_h_d0fakes") -> Divide(hist ("LRT_h_d0fakes_n"), hist ("LRT_h_d0fakes_d"));
+  hist ("LRT_h_d0fakes") ->SetMarkerStyle(3);
+  hist ("LRT_h_d0fakes") -> SetOption("P0");
 
 
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));
