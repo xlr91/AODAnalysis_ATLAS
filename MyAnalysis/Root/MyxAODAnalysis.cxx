@@ -182,9 +182,13 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("offl_h_pTeff", "Efficiency_function_of_pT", 50, 0, 2000)));
 
 
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -100, 100)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -100, 100)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -100, 100)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
+
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
 
 
   ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 100, -300, 300)));
@@ -543,7 +547,10 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("LRT_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_LRT->phi());
 
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
+                  hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
                 }
+
+                hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
 
                 ///efficiency plot uses the truth values, but 'yes/no' on the booleans
                 if(passedflag_ftf || passedflag_lrt){
