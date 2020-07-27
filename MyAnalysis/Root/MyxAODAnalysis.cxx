@@ -477,6 +477,24 @@ StatusCode MyxAODAnalysis :: execute ()
                   
                 } //end of FTF loop
 
+                ///testing start 
+                ///looks like this will be used to get the thingys going 
+                ///GOtta make it do the histogram thingy
+                ///Thats for tomorrow yus
+
+
+                uint8_t dummy(-1);
+                //ANA_MSG_INFO("dummy: " << dummy);
+                int nhitsPIX = matched_FTF->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy :-1;
+                int nhitsSCT = matched_FTF->summaryValue( dummy, xAOD::numberOfSCTHits )? dummy :-1;
+               
+                ANA_MSG_INFO("nHitsPix: " << nhitsPIX);
+                ANA_MSG_INFO("nHitsSct: " << nhitsSCT);
+
+
+
+                ///testing end
+
                 hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
                 hist ("FTF_h_etafakes_n") -> Fill(gchild -> eta());
 
