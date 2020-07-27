@@ -35,7 +35,7 @@ if test == 4:
 #muons with PU 40 with lrttest=4 (50mm d0Max)
 if test == 5:
     testFile = "/scratch/baines/muonaod/AOD.pool.root"
-    OFlag = False
+    OFlag = True
     Tflag = True
 
 
