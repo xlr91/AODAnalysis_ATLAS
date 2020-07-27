@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 4 #3
+test = 6 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -29,12 +29,18 @@ if test == 3:
 #300 mm d0 (can chagne)
 if test == 4:
     testFile = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root"
-    OFlag = False
+    OFlag = True
     Tflag = True
 
 #muons with PU 40 with lrttest=4 (50mm d0Max)
 if test == 5:
     testFile = "/scratch/baines/muonaod/AOD.pool.root"
+    OFlag = False
+    Tflag = True
+
+#Run 
+if test == 6:
+    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
     OFlag = False
     Tflag = True
 

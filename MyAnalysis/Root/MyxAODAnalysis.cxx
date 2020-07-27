@@ -4,6 +4,7 @@
 #include <cmath>
 #include "TEfficiency.h"
 #include "TCanvas.h"
+#include "TMath.h"
 
 MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
                                   ISvcLocator *pSvcLocator)
@@ -104,6 +105,10 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("h_childDecayLength", "RHadron_Decay_Length", 100, 0, 150)));
   ANA_CHECK(book(TH1F("h_phiInOffline", "phi_In_Offline", 100, -3.15, -3.15)));
   ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
+  ANA_CHECK(book(TH1F("h_offpass", "Passed off cut", 2, 0, 2)));
+  ANA_CHECK(book(TH1F("h_ftfpass", "Passed ftf cut", 2, 0, 2)));
+  ANA_CHECK(book(TH1F("h_lrtpass", "Passed lrt cut", 2, 0, 2)));
+
 
 
   //Truth Histograms
@@ -192,9 +197,17 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_d0fakes_d", "Fakes_function_of_d0_d_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0fakes", "Fakes_function_of_d0_FTF", 50, -40, 40)));
 
+  ANA_CHECK(book(TH1F("FTF_h_etafakes_n", "Fakes_function_of_eta_n_FTF", 50, -3, 3)));
+  ANA_CHECK(book(TH1F("FTF_h_etafakes_d", "Fakes_function_of_eta_n_FTF", 50, -3, 3)));
+  ANA_CHECK(book(TH1F("FTF_h_etafakes", "Fakes_function_of_eta_FTF", 50, -3, 3)));
+
   ANA_CHECK(book(TH1F("LRT_h_d0fakes_n", "Fakes_function_of_d0_n_LRT", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0fakes_d", "Fakes_function_of_d0_d_LRT", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0fakes", "Fakes_function_of_d0_LRT", 50, -40, 40)));
+
+  ANA_CHECK(book(TH1F("LRT_h_etafakes_n", "Fakes_function_of_eta_n_LRT", 50, -3, 3)));
+  ANA_CHECK(book(TH1F("LRT_h_etafakes_d", "Fakes_function_of_eta_d_LRT", 50, -3, 3)));
+  ANA_CHECK(book(TH1F("LRT_h_etafakes", "Fakes_function_of_eta_LRT", 50, -3, 3)));
 
   ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
@@ -209,9 +222,27 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_etaeff_d", "Efficiency_function_of_eta_d", 50, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("trig_h_etaeff", "Efficiency_function_of_eta", 50, -3.2, 3.2)));
 
-  ANA_CHECK(book(TH1F("trig_h_pTeff_n", "Efficiency_function_of_pT_n", 50, 0, 2000)));
-  ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 2000)));
-  ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 50, 0, 2000)));
+  ANA_CHECK(book(TH1F("trig_h_pTeff_n", "Efficiency_function_of_pT_n", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 50, 0, 150)));
+
+
+  //logarithmic pT values
+  const Int_t nbins = 100;
+  Double_t xmin = 1e-1;
+  Double_t xmax = 1e2;
+  Double_t logxmin = TMath::Log10(xmin);
+  Double_t logxmax = TMath::Log10(xmax);
+  Double_t binwidth = (logxmax-logxmin)/nbins;
+  Double_t xbins[nbins+1];
+  xbins[0] = xmin;
+  for (Int_t i=1;i<=nbins;i++) {
+    xbins[i] = xmin + TMath::Power(10,logxmin+i*binwidth);
+  }
+  
+  ANA_CHECK(book(TH1F("trig_h_pTefflog_n", "Efficiency_function_of_pT_log_n", nbins, xbins)));
+  ANA_CHECK(book(TH1F("trig_h_pTefflog_d", "Efficiency_function_of_pT_log_d", nbins, xbins)));
+  ANA_CHECK(book(TH1F("trig_h_pTefflog", "Efficiency_function_of_pT_log", nbins, xbins)));
 
   ANA_CHECK(book(TH1F("trig_h_TDLeff_n", "Efficiency_function_of_TDL_n", 100, 0, 1000)));
   ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
@@ -358,9 +389,9 @@ StatusCode MyxAODAnalysis :: execute ()
                   }
                 } //end of track loop
                 
-                
+
                 //Result of matching truth muon tracks with the reco tracks
-                hist ("offline_h_dr")->Fill(0);
+                //hist ("offline_h_dr")->Fill(0);
 
                 //Cuts
                 //passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
@@ -390,9 +421,10 @@ StatusCode MyxAODAnalysis :: execute ()
                 }
 
                 ANA_MSG_INFO("Cut Chosen is " << m_cut);
-                ANA_MSG_INFO("Passed ofl cut: " << passedflag_ofl);
+                //ANA_MSG_INFO("Passed ofl cut: " << passedflag_ofl);
 
                 if (passedflag_ofl){
+                  hist("h_offpass") -> Fill(1);
                   hist ("offline_h_dr")->Fill (mindr);
                   hist ("offline_h_d0")->Fill (matched_offline -> d0());
                   hist ("offline_h_eta")->Fill (matched_offline -> eta());
@@ -413,7 +445,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("offl_h_d0eff_n") -> Fill(truthd0val);
                   hist ("offl_h_etaeff_n") -> Fill(gchild->eta());
                   hist ("offl_h_pTeff_n") -> Fill(gchild->pt() / 1000);
-                }
+                } else{hist("h_offpass") -> Fill(0); }
 
 
                 hist ("offl_h_d0eff_d") -> Fill(truthd0val);
@@ -438,6 +470,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
                   if(calcdr(gchild, FTF_T) < 0.01){
                     hist ("FTF_h_d0fakes_d") -> Fill(truthd0val);
+                    hist ("FTF_h_etafakes_d") -> Fill(gchild -> eta());
                   }
                   ///if mindr < 0.01 of the thingy
                   ///fill in the histograms 
@@ -445,6 +478,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 } //end of FTF loop
 
                 hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("FTF_h_etafakes_n") -> Fill(gchild -> eta());
 
                 //chooses what kind of cuts is used
                 switch(m_cut) {
@@ -478,6 +512,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
 
                 if (passedflag_ftf){
+                  hist("h_ftfpass") -> Fill(1);
                   hist ("FTF_h_dr")->Fill (mindr);
                   hist ("FTF_h_d0")->Fill (matched_FTF -> d0());
                   hist ("FTF_h_eta")->Fill (matched_FTF -> eta());
@@ -495,7 +530,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
 
                   hist ("FTF_h_d0eff_n") -> Fill(truthd0val);
-                }
+                } else{hist("h_ftfpass") -> Fill(0);}
 
                 hist ("FTF_h_d0eff_d") -> Fill(truthd0val);                
 
@@ -517,10 +552,12 @@ StatusCode MyxAODAnalysis :: execute ()
 
                   if(calcdr(gchild, LRT_T) < 0.01){
                     hist ("LRT_h_d0fakes_d") -> Fill(truthd0val);
+                    hist ("LRT_h_etafakes_d") -> Fill(gchild -> eta());
                   }
                 } //end of LRT loop
 
                 hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("LRT_h_etafakes_n") -> Fill(gchild -> eta());
                 //cuts
                 //passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
                 ///passedflag_lrt = cut2(mindr, m_drcut);
@@ -556,6 +593,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
 
                 if (passedflag_lrt){
+                  hist("h_lrtpass") -> Fill(1);
                   hist ("LRT_h_dr")->Fill (mindr);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
                   hist ("LRT_h_eta")->Fill (matched_LRT -> eta());
@@ -572,7 +610,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
-                }
+                } else{hist("h_lrtpass") -> Fill(0);}
 
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
 
@@ -581,6 +619,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("trig_h_d0eff_n") -> Fill(truthd0val);
                   hist ("trig_h_etaeff_n") -> Fill(gchild->eta());
                   hist ("trig_h_pTeff_n") -> Fill(gchild->pt() / 1000);
+                  hist ("trig_h_pTefflog_n") -> Fill(gchild->pt() / 1000);
                   hist ("trig_h_TDLeff_n") -> Fill(decaylength(cproVtx, cdecVtx));
                   hist ("trig_h_z0eff_n") -> Fill(cdecVtx->z());
                 }
@@ -588,6 +627,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("trig_h_d0eff_d") -> Fill(truthd0val);
                 hist ("trig_h_etaeff_d") -> Fill(gchild->eta());
                 hist ("trig_h_pTeff_d") -> Fill(gchild->pt() / 1000);
+                hist ("trig_h_pTefflog_d") -> Fill(gchild->pt() / 1000);
                 hist ("trig_h_TDLeff_d") -> Fill(decaylength(cproVtx, cdecVtx));
                 hist ("trig_h_z0eff_d") -> Fill(cdecVtx->z());
                 
@@ -648,14 +688,25 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist ("trig_h_pTeff") ->SetMarkerStyle(3);
   hist ("trig_h_pTeff") -> SetOption("P0");
 
+  hist ("trig_h_pTefflog") -> Divide(hist ("trig_h_pTefflog_n"), hist ("trig_h_pTefflog_d"));
+  hist ("trig_h_pTefflog") ->SetMarkerStyle(3);
+  hist ("trig_h_pTefflog") -> SetOption("P0");
+
   hist ("FTF_h_d0fakes") -> Divide(hist ("FTF_h_d0fakes_n"), hist ("FTF_h_d0fakes_d"));
   hist ("FTF_h_d0fakes") ->SetMarkerStyle(3);
-  hist ("FTF_h_d0fakes") -> SetOption("P0");
+  //hist ("FTF_h_d0fakes") -> SetOption("P0");
+
+  hist ("FTF_h_etafakes") -> Divide(hist ("FTF_h_etafakes_n"), hist ("FTF_h_etafakes_d"));
+  hist ("FTF_h_etafakes") ->SetMarkerStyle(3);
+  //hist ("FTF_h_etafakes") -> SetOption("P0");
 
   hist ("LRT_h_d0fakes") -> Divide(hist ("LRT_h_d0fakes_n"), hist ("LRT_h_d0fakes_d"));
   hist ("LRT_h_d0fakes") ->SetMarkerStyle(3);
-  hist ("LRT_h_d0fakes") -> SetOption("P0");
+  //hist ("LRT_h_d0fakes") -> SetOption("P0");
 
+  hist ("LRT_h_etafakes") -> Divide(hist ("LRT_h_etafakes_n"), hist ("LRT_h_etafakes_d"));
+  hist ("LRT_h_etafakes") ->SetMarkerStyle(3);
+  //hist ("LRT_h_etafakes") -> SetOption("P0");
 
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_LRT"));
@@ -679,6 +730,6 @@ StatusCode MyxAODAnalysis :: finalize ()
 
 
 
-  ANA_MSG_INFO("ENDS YEET with size of vector test " << vector_test.size());
+  ANA_MSG_INFO("Algorithm has finished running");
   return StatusCode::SUCCESS;
 }
