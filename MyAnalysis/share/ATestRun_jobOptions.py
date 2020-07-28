@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 3 #3
+test = 5 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -38,10 +38,10 @@ if test == 5:
     OFlag = False
     Tflag = True
 
-#Run 
+#Test14
 if test == 6:
-    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
-    OFlag = False
+    testFile = "/scratch/emuhamma/testAOD/test14/AOD.pool.root"
+    OFlag = True
     Tflag = True
 
 
@@ -82,7 +82,7 @@ athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 50 # 500000
+theApp.EvtMax = 500000 # 500000
 
 #Msg limits
 MessageSvc.defaultLimit = 100000000  # all messages 
