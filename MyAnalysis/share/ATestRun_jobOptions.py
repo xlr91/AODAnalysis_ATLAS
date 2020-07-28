@@ -44,6 +44,26 @@ if test == 6:
     OFlag = True
     Tflag = True
 
+#Test15
+if test == 7:
+    testFile = "/scratch/emuhamma/testAOD/test15/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
+
+#Test16
+if test == 8:
+    testFile = "/scratch/emuhamma/testAOD/test16/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
+
+#Test17
+if test == 9:
+    testFile = "/scratch/emuhamma/testAOD/test17/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
 
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
