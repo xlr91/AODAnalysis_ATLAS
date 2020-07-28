@@ -1,12 +1,18 @@
 
 
 #Job Properties
-test = 6 #3
+test = 0 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
 ETACUTnumber = 0.1
 
+
+#original AOD file to test on (Offline only)
+if test == 0:
+    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
+    OFlag = True
+    Tflag = True
 
 #original AOD file to test on (Offline only)
 if test == 1:

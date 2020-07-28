@@ -529,6 +529,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 
                 if (passedflag_lrt){
                   hist("h_lrtpass") -> Fill(1);
+                  hist ("LRT_h_dr")->Fill (mindr);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
                   hist ("LRT_h_z0") -> Fill(matched_LRT->z0());
                   hist ("LRT_h_eta")->Fill (matched_LRT -> eta());
