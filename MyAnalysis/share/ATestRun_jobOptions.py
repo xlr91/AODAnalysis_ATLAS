@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 5 #3
+test = 6 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -29,12 +29,38 @@ if test == 3:
 #300 mm d0 (can chagne)
 if test == 4:
     testFile = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root"
-    OFlag = False
+    OFlag = True
     Tflag = True
 
 #muons with PU 40 with lrttest=4 (50mm d0Max)
 if test == 5:
     testFile = "/scratch/baines/muonaod/AOD.pool.root"
+    OFlag = False
+    Tflag = True
+
+#Test14
+if test == 6:
+    testFile = "/scratch/emuhamma/testAOD/test14/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
+#Test15
+if test == 7:
+    testFile = "/scratch/emuhamma/testAOD/test15/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
+
+#Test16
+if test == 8:
+    testFile = "/scratch/emuhamma/testAOD/test16/AOD.pool.root"
+    OFlag = True
+    Tflag = True
+
+
+#Test17
+if test == 9:
+    testFile = "/scratch/emuhamma/testAOD/test17/AOD.pool.root"
     OFlag = True
     Tflag = True
 
@@ -76,7 +102,7 @@ athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 500000
+theApp.EvtMax = 500000 # 500000
 
 #Msg limits
 MessageSvc.defaultLimit = 100000000  # all messages 

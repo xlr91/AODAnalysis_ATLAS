@@ -125,6 +125,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   //FTF Histograms
   ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -100, 100))); //-30/30
+  ANA_CHECK(book(TH1F("FTF_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("FTF_h_phi", "phi values for FTF tracks", 300, -3.2, 3.2)));
@@ -139,6 +140,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   //LRT Histograms
   ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -100, 100)));
+  ANA_CHECK(book(TH1F("LRT_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("LRT_h_phi", "phi values for LRT tracks", 300, -3.2, 3.2)));
@@ -414,7 +416,16 @@ StatusCode MyxAODAnalysis :: execute ()
                     mindr = calcdr(truth, FTF_T);
                     matched_FTF = FTF_T;
                   }
+
+                  if(calcdr(truth, FTF_T) < 0.01){
+                    hist ("FTF_h_d0fakes_d") -> Fill(truthd0val);
+                    hist ("FTF_h_etafakes_d") -> Fill(truth -> eta());
+                  }
                 } //end of FTF loop
+
+                
+                hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("FTF_h_etafakes_n") -> Fill(truth -> eta());
 
                 //chooses what kind of cuts is used
                 switch(m_cut) {
@@ -451,6 +462,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("h_ftfpass") -> Fill(1);
                   hist ("FTF_h_dr")->Fill (mindr);
                   hist ("FTF_h_d0")->Fill (matched_FTF -> d0());
+                  hist ("FTF_h_z0") -> Fill(matched_FTF->z0());
                   hist ("FTF_h_eta")->Fill (matched_FTF -> eta());
                   hist ("FTF_h_phi")->Fill (matched_FTF -> phi());
                   hist ("FTF_h_pT")->Fill (matched_FTF -> pt() / 1000);
@@ -475,8 +487,15 @@ StatusCode MyxAODAnalysis :: execute ()
                     mindr = calcdr(truth, LRT_T);
                     matched_LRT = LRT_T;
                   }
+
+                  if(calcdr(truth, LRT_T) < 0.01){
+                    hist ("LRT_h_d0fakes_d") -> Fill(truthd0val);
+                    hist ("LRT_h_etafakes_d") -> Fill(truth -> eta());
+                  }
                 } //end of LRT loop
-                
+
+                hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("LRT_h_etafakes_n") -> Fill(truth -> eta());                
           
                 
                 switch(m_cut) {
@@ -511,6 +530,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 if (passedflag_lrt){
                   hist("h_lrtpass") -> Fill(1);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
+                  hist ("LRT_h_z0") -> Fill(matched_LRT->z0());
                   hist ("LRT_h_eta")->Fill (matched_LRT -> eta());
                   hist ("LRT_h_phi")->Fill (matched_LRT -> phi());
                   hist ("LRT_h_pT")->Fill (matched_LRT -> pt() / 1000);
@@ -521,6 +541,8 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("LRT_h_deta") -> Fill ( truth->eta() - matched_LRT->eta());
                   hist ("LRT_h_dz") -> Fill ( cdecVtx->z() - matched_LRT->z0());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
+
+                  
                 } else{hist("h_lrtpass") -> Fill(0);}
 
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
@@ -536,6 +558,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("trig_h_etaeff_d") -> Fill(truth->eta());
                 hist ("trig_h_pTeff_d") -> Fill(truth->pt() / 1000);
                 hist ("trig_h_z0eff_d") -> Fill(cdecVtx->z());
+                
                 
               }
 
@@ -591,6 +614,25 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist ("trig_h_pTeff") ->SetMarkerStyle(3);
   hist ("trig_h_pTeff") -> SetOption("P0");
 
+  hist ("trig_h_pTefflog") -> Divide(hist ("trig_h_pTefflog_n"), hist ("trig_h_pTefflog_d"));
+  hist ("trig_h_pTefflog") ->SetMarkerStyle(3);
+  hist ("trig_h_pTefflog") -> SetOption("P0");
+
+  hist ("FTF_h_d0fakes") -> Divide(hist ("FTF_h_d0fakes_n"), hist ("FTF_h_d0fakes_d"));
+  hist ("FTF_h_d0fakes") ->SetMarkerStyle(3);
+  //hist ("FTF_h_d0fakes") -> SetOption("P0");
+
+  hist ("FTF_h_etafakes") -> Divide(hist ("FTF_h_etafakes_n"), hist ("FTF_h_etafakes_d"));
+  hist ("FTF_h_etafakes") ->SetMarkerStyle(3);
+  //hist ("FTF_h_etafakes") -> SetOption("P0");
+
+  hist ("LRT_h_d0fakes") -> Divide(hist ("LRT_h_d0fakes_n"), hist ("LRT_h_d0fakes_d"));
+  hist ("LRT_h_d0fakes") ->SetMarkerStyle(3);
+  //hist ("LRT_h_d0fakes") -> SetOption("P0");
+
+  hist ("LRT_h_etafakes") -> Divide(hist ("LRT_h_etafakes_n"), hist ("LRT_h_etafakes_d"));
+  hist ("LRT_h_etafakes") ->SetMarkerStyle(3);
+  //hist ("LRT_h_etafakes") -> SetOption("P0");
 
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_LRT"));
