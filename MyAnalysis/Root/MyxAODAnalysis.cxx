@@ -137,6 +137,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   //FTF Histograms
   ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -100, 100))); //-30/30
+  ANA_CHECK(book(TH1F("FTF_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("FTF_h_phi", "phi values for FTF tracks", 300, -3.2, 3.2)));
@@ -151,6 +152,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   //LRT Histograms
   ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -100, 100)));
+  ANA_CHECK(book(TH1F("LRT_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("LRT_h_phi", "phi values for LRT tracks", 300, -3.2, 3.2)));
@@ -533,6 +535,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("h_ftfpass") -> Fill(1);
                   hist ("FTF_h_dr")->Fill (mindr);
                   hist ("FTF_h_d0")->Fill (matched_FTF -> d0());
+                  hist ("FTF_h_z0")->Fill (matched_FTF -> z0());
                   hist ("FTF_h_eta")->Fill (matched_FTF -> eta());
                   hist ("FTF_h_phi")->Fill (matched_FTF -> phi());
                   hist ("FTF_h_pT")->Fill (matched_FTF -> pt() / 1000);
@@ -614,6 +617,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("h_lrtpass") -> Fill(1);
                   hist ("LRT_h_dr")->Fill (mindr);
                   hist ("LRT_h_d0")->Fill (matched_LRT -> d0());
+                  hist ("LRT_h_z0")->Fill (matched_LRT -> z0());
                   hist ("LRT_h_eta")->Fill (matched_LRT -> eta());
                   hist ("LRT_h_phi")->Fill (matched_LRT -> phi());
                   hist ("LRT_h_pT")->Fill (matched_LRT -> pt() / 1000);
