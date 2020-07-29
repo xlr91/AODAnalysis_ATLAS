@@ -55,13 +55,11 @@ if test == 7:
     OFlag = True
     Tflag = True
 
-
 #Test16
 if test == 8:
     testFile = "/scratch/emuhamma/testAOD/test16/AOD.pool.root"
     OFlag = True
     Tflag = True
-
 
 #Test17
 if test == 9:
