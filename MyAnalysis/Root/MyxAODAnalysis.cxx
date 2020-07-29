@@ -136,33 +136,60 @@ StatusCode MyxAODAnalysis :: initialize ()
 
   //FTF Histograms
   ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.1)));
+  ANA_CHECK(book(TH1F("FTF_h_dr_0-10", "dR values for FTF tracks at 0-10 mm TDL", 300, 0, 0.1)));
+  ANA_CHECK(book(TH1F("FTF_h_dr_20-30", "dR values for FTF tracks at 20-30 mm TDL", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("FTF_h_d0", "d0 values for FTF tracks", 300, -100, 100))); //-30/30
   ANA_CHECK(book(TH1F("FTF_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("FTF_h_eta", "eta values for FTF tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("FTF_h_pT", "pT values for FTF tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("FTF_h_phi", "phi values for FTF tracks", 300, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("FTF_h_dphi", "dphi values for FTF tracks", 300, -1, 1)));
-  ANA_CHECK(book(TH1F("FTF_h_dphi_0-10", "dphi values for FTF tracks 0-10", 300, -1, 1)));
-  ANA_CHECK(book(TH1F("FTF_h_dphi_20-30", "dphi values for FTF tracks 20-30", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("FTF_h_dphi_0-10", "dphi values for FTF tracks 0-10 mm TDL", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("FTF_h_dphi_20-30", "dphi values for FTF tracks 20-30 mm TDL", 300, -1, 1)));
   ANA_CHECK(book(TH1F("FTF_h_deta", "deta values for FTF tracks", 300, -1.2, 1.2)));
   ANA_CHECK(book(TH1F("FTF_h_dz", "dz values for FTF tracks", 300, -300, 300)));
+  ANA_CHECK(book(TH1F("FTF_h_dz_0-10", "dz values for FTF tracks at 0-10 mm TDL", 300, -300, 300)));
+  ANA_CHECK(book(TH1F("FTF_h_dz_20-30", "dz values for FTF tracks at 20-30 mm TDL", 300, -300, 300)));
   ANA_CHECK(book(TH2F("FTF_h_phivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("FTF_h_dphivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 40, 300, -0.001, 0.001)));
 
+  ANA_CHECK(book(TH1F("FTF_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("FTF_h_NSct", "Number of SCT Hits", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("FTF_h_Nblayer", "Number of Hits in the first layer (B-layer)", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("FTF_h_NcontribPix", "Number of Contributing layer of the pixel detector", 20, 0, 20)));
+
+  ANA_CHECK(book(TH2F("FTF_h_NPixvd0", "NPix vs d0 for FTF", 20, -100, 100, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("FTF_h_NPixvTDLength", "NPix vs Transv. DecLengths for FTF", 40, 0, 400, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("FTF_h_dzvz", "dz vs z FTF", 300, -300, 300, 300, -300, 300)));
+  
+
   //LRT Histograms
   ANA_CHECK(book(TH1F("LRT_h_dr", "dR values for LRT tracks", 300, 0, 0.1)));
+  ANA_CHECK(book(TH1F("LRT_h_dr_0-10", "dR values for LRT tracks at 0-10 mm TDL", 300, 0, 0.1)));
+  ANA_CHECK(book(TH1F("LRT_h_dr_20-30", "dR values for LRT tracksa at 20-30 mm TDL", 300, 0, 0.1)));
   ANA_CHECK(book(TH1F("LRT_h_d0", "d0 values for LRT tracks", 300, -100, 100)));
   ANA_CHECK(book(TH1F("LRT_h_z0", "z0 values for LRT tracks", 300, -1000, 1000)));
   ANA_CHECK(book(TH1F("LRT_h_eta", "eta values for LRT tracks", 300, -5, 5)));
   ANA_CHECK(book(TH1F("LRT_h_pT", "pT values for LRT tracks", 300, 0, 2)));
   ANA_CHECK(book(TH1F("LRT_h_phi", "phi values for LRT tracks", 300, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("LRT_h_dphi", "dphi values for LRT tracks", 300, -1, 1)));
-  ANA_CHECK(book(TH1F("LRT_h_dphi_0-10", "dphi values for LRT tracks 0-10", 300, -1, 1)));
-  ANA_CHECK(book(TH1F("LRT_h_dphi_20-30", "dphi values for LRT tracks 20-30", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("LRT_h_dphi_0-10", "dphi values for LRT tracks 0-10 mm TDL", 300, -1, 1)));
+  ANA_CHECK(book(TH1F("LRT_h_dphi_20-30", "dphi values for LRT tracks 20-30 mm TDL", 300, -1, 1)));
   ANA_CHECK(book(TH1F("LRT_h_deta", "deta values for LRT tracks", 300, -1.2, 1.2)));
   ANA_CHECK(book(TH1F("LRT_h_dz", "dz values for LRT tracks", 300, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_dz_0-10", "dz values for LRT tracks at 0-10 mm TDL", 300, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_dz_20-30", "dz values for LRT tracks at 20-30 mm TDL", 300, -300, 300)));
   ANA_CHECK(book(TH2F("LRT_h_phivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("LRT_h_dphivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 40, 300, -0.001, 0.001)));
+
+  ANA_CHECK(book(TH1F("LRT_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("LRT_h_NSct", "Number of SCT Hits", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("LRT_h_Nblayer", "Number of Hits in the first layer (B-layer)", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("LRT_h_NcontribPix", "Number of Contributing layer of the pixel detector", 20, 0, 20)));
+
+  ANA_CHECK(book(TH2F("LRT_h_NPixvd0", "NPix vs d0 for LRT", 20, -100, 100, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("LRT_h_NPixvTDLength", "NPix vs Transv. DecLengths for LRT", 40, 0, 400, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("LRT_h_dzvz", "dz vs z LRT", 300, -300, 300, 50, -50, 50)));
 
   //Comparison Histograms
   ANA_CHECK(book(TH1F("compare/h_d0diff_offline", "delta_d0 (Offline-truth)", 100, -2, 2)));
@@ -175,7 +202,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_All", "truth_d0_vs_All_d0", 100, -10, 10, 100, -50, 50))); 
 
   
-  //Comparison Histograms
+  //Comparison Histograms and efficiencies
   ANA_CHECK(book(TH1F("offl_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -50, 50)));
   ANA_CHECK(book(TH1F("offl_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -50, 50)));
   ANA_CHECK(book(TH1F("offl_h_d0eff", "Efficiency_function_of_d0", 50, -50, 50)));
@@ -250,9 +277,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
   ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
 
-  ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 100, -300, 300)));
 
   ANA_CHECK(book(TH1F("trig_h_z0eff_n", "Efficiency_function_of_z0_n", 100, -500, 500)));
   ANA_CHECK(book(TH1F("trig_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
@@ -319,6 +346,12 @@ StatusCode MyxAODAnalysis :: execute ()
   Bool_t passedflag_ftf = true;
   Bool_t passedflag_lrt = true;
   Float_t RhTD_Length;
+
+  uint8_t dummy(-1);
+  int NPix;
+  int NSct;
+  int Nblayer;
+  int NcontribPix;
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
   ANA_MSG_INFO("Found Truth, size is " << truthparticles->size());
@@ -351,7 +384,7 @@ StatusCode MyxAODAnalysis :: execute ()
               continue;
             }
 
-            if (gchild->absPdgId() == 11){ // at this point everything below are muons from RHadrons from Stops
+            if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
 
               //Get the decay lengths of stop (expected to be 0) and RHadron (expected to be about 20 mm)
               const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
@@ -479,23 +512,10 @@ StatusCode MyxAODAnalysis :: execute ()
                   
                 } //end of FTF loop
 
-                ///testing start 
-                ///looks like this will be used to get the thingys going 
-                ///GOtta make it do the histogram thingy
-                ///Thats for tomorrow yus
-
-
-                uint8_t dummy(-1);
-                //ANA_MSG_INFO("dummy: " << dummy);
-                int nhitsPIX = matched_FTF->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy :-1;
-                int nhitsSCT = matched_FTF->summaryValue( dummy, xAOD::numberOfSCTHits )? dummy :-1;
-               
-                ANA_MSG_INFO("nHitsPix: " << nhitsPIX);
-                ANA_MSG_INFO("nHitsSct: " << nhitsSCT);
-
-
-
-                ///testing end
+                NPix        = matched_FTF->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
+                NSct        = matched_FTF->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
+                Nblayer     = matched_FTF->summaryValue( dummy, xAOD::numberOfBLayerHits )        ? dummy :-1;
+                NcontribPix = matched_FTF->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
 
                 hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
                 hist ("FTF_h_etafakes_n") -> Fill(gchild -> eta());
@@ -526,8 +546,14 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 if (decaylength(cproVtx, cdecVtx) < 10){
                   hist("FTF_h_dphi_0-10") -> Fill ( gchild->phi() - matched_FTF->phi());
+                  hist("FTF_h_dr_0-10") -> Fill (mindr);
+                  hist("FTF_h_dz_0-10") -> Fill ( cdecVtx->z() - matched_FTF->z0());
+
                 } else if (20 < decaylength(cproVtx, cdecVtx) && decaylength(cproVtx, cdecVtx) < 30 ){
                   hist("FTF_h_dphi_20-30") -> Fill ( gchild->phi() - matched_FTF->phi());
+                  hist("FTF_h_dr_20-30") -> Fill (mindr);
+                  hist("FTF_h_dz_20-30") -> Fill ( cdecVtx->z() - matched_FTF->z0());
+
                 }
 
 
@@ -545,12 +571,24 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_dphi") -> Fill ( gchild->phi() - matched_FTF->phi() );
                   hist ("FTF_h_deta") -> Fill ( gchild->eta() - matched_FTF->eta());
                   hist ("FTF_h_dz") -> Fill ( cdecVtx->z() - matched_FTF->z0());
-                  ANA_MSG_INFO("Truthz: "<< cdecVtx->z() << " Trackz: " << matched_FTF->z0());
+                  //ANA_MSG_INFO("Truthz: "<< cdecVtx->z() << " Trackz: " << matched_FTF->z0());
                   hist ("FTF_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_FTF->phi());
 
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
-
                   hist ("FTF_h_d0eff_n") -> Fill(truthd0val);
+
+                  hist ("FTF_h_NPix") -> Fill(NPix);
+                  hist ("FTF_h_NSct") -> Fill(NSct);
+                  hist ("FTF_h_Nblayer") -> Fill(Nblayer);
+                  hist ("FTF_h_NcontribPix") -> Fill(NcontribPix);
+                  
+                  hist ("FTF_h_NPixvd0") -> Fill(truthd0val, NPix);
+                  hist ("FTF_h_NPixvTDLength") -> Fill(RhTD_Length, NPix);
+                  hist ("FTF_h_dzvz") -> Fill(matched_FTF->z0(), cdecVtx->z() - matched_FTF->z0());
+
+
+                  
+
                 } else{hist("h_ftfpass") -> Fill(0);}
 
                 hist ("FTF_h_d0eff_d") -> Fill(truthd0val);                
@@ -576,6 +614,11 @@ StatusCode MyxAODAnalysis :: execute ()
                     hist ("LRT_h_etafakes_d") -> Fill(gchild -> eta());
                   }
                 } //end of LRT loop
+
+                NPix        = matched_LRT->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
+                NSct        = matched_LRT->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
+                Nblayer     = matched_LRT->summaryValue( dummy, xAOD::numberOfBLayerHits )        ? dummy :-1;
+                NcontribPix = matched_LRT->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
 
                 hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
                 hist ("LRT_h_etafakes_n") -> Fill(gchild -> eta());
@@ -608,8 +651,12 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 if (decaylength(cproVtx, cdecVtx) < 10){
                   hist("LRT_h_dphi_0-10") -> Fill ( gchild->phi() - matched_LRT->phi());
+                  hist("LRT_h_dr_0-10") -> Fill ( mindr);
+                  hist("LRT_h_dz_0-10") -> Fill ( cdecVtx->z() - matched_LRT->z0());
                 } else if (20 < decaylength(cproVtx, cdecVtx) && decaylength(cproVtx, cdecVtx) < 30 ){
                   hist("LRT_h_dphi_20-30") -> Fill ( gchild->phi() - matched_LRT->phi());
+                  hist("LRT_h_dr_20-30") -> Fill ( mindr);
+                  hist("LRT_h_dz_20-30") -> Fill ( cdecVtx->z() - matched_LRT->z0());
                 }
 
 
@@ -632,6 +679,15 @@ StatusCode MyxAODAnalysis :: execute ()
 
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
+
+                  hist ("LRT_h_NPix") -> Fill(NPix);
+                  hist ("LRT_h_NSct") -> Fill(NSct);
+                  hist ("LRT_h_Nblayer") -> Fill(Nblayer);
+                  hist ("LRT_h_NcontribPix") -> Fill(NcontribPix);
+                  
+                  hist ("LRT_h_NPixvd0") -> Fill(truthd0val, NPix);
+                  hist ("LRT_h_NPixvTDLength") -> Fill(RhTD_Length, NPix);
+                  hist ("LRT_h_dzvz") -> Fill(matched_LRT->z0(), cdecVtx->z() - matched_LRT->z0());
                 } else{hist("h_lrtpass") -> Fill(0);}
 
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
@@ -735,6 +791,16 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist("offline_h_dphivTDLength") -> SetOption("box");
   hist("FTF_h_dphivTDLength") -> SetOption("box");
   hist("LRT_h_dphivTDLength") -> SetOption("box");
+
+  hist("FTF_h_NPixvd0") -> SetOption("box");
+  hist("FTF_h_NPixvTDLength") -> SetOption("box");
+  hist("FTF_h_dzvz") -> SetOption("box");
+
+  hist("LRT_h_NPixvd0") -> SetOption("box");
+  hist("LRT_h_NPixvTDLength") -> SetOption("box");
+  hist("LRT_h_dzvz") -> SetOption("box");
+
+  
 
 
 
