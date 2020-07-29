@@ -202,26 +202,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_All", "truth_d0_vs_All_d0", 100, -10, 10, 100, -50, 50))); 
 
   
-  //Comparison Histograms and efficiencies
-  ANA_CHECK(book(TH1F("offl_h_d0eff_n", "Efficiency_function_of_d0_n", 50, -50, 50)));
-  ANA_CHECK(book(TH1F("offl_h_d0eff_d", "Efficiency_function_of_d0_d", 50, -50, 50)));
-  ANA_CHECK(book(TH1F("offl_h_d0eff", "Efficiency_function_of_d0", 50, -50, 50)));
-
-  ANA_CHECK(book(TH1F("offl_h_etaeff_n", "Efficiency_function_of_eta_n", 50, -3.2, 3.2)));
-  ANA_CHECK(book(TH1F("offl_h_etaeff_d", "Efficiency_function_of_eta_d", 50, -3.2, 3.2)));
-  ANA_CHECK(book(TH1F("offl_h_etaeff", "Efficiency_function_of_eta", 50, -3.2, 3.2)));
-
-  ANA_CHECK(book(TH1F("offl_h_pTeff_n", "Efficiency_function_of_pT_n", 50, 0, 2000)));
-  ANA_CHECK(book(TH1F("offl_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 2000)));
-  ANA_CHECK(book(TH1F("offl_h_pTeff", "Efficiency_function_of_pT", 50, 0, 2000)));
-
-
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
-
-
-
+  //Fakes 
   ANA_CHECK(book(TH1F("FTF_h_d0fakes_n", "Fakes_function_of_d0_n_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0fakes_d", "Fakes_function_of_d0_d_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0fakes", "Fakes_function_of_d0_FTF", 50, -40, 40)));
@@ -237,6 +218,33 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("LRT_h_etafakes_n", "Fakes_function_of_eta_n_LRT", 50, -3, 3)));
   ANA_CHECK(book(TH1F("LRT_h_etafakes_d", "Fakes_function_of_eta_d_LRT", 50, -3, 3)));
   ANA_CHECK(book(TH1F("LRT_h_etafakes", "Fakes_function_of_eta_LRT", 50, -3, 3)));
+
+
+  //Efficiencies
+  ANA_CHECK(book(TH1F("offl_h_d0eff_n", "Offline Efficiency function of d0 n", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("offl_h_d0eff_d", "Offline Efficiency function of d0 d", 100, -300, 300)));
+  ANA_CHECK(book(TH1F("offl_h_d0eff", "Offline Efficiency function of d0", 100, -300, 300)));
+
+  ANA_CHECK(book(TH1F("offl_h_etaeff_n", "Offline Efficiency function of eta n", 50, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("offl_h_etaeff_d", "Offline Efficiency function of eta d", 50, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("offl_h_etaeff", "Offline Efficiency function of eta", 50, -3.2, 3.2)));
+
+  ANA_CHECK(book(TH1F("offl_h_pTeff_n", "Offline Efficiency_function_of_pT_n", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("offl_h_pTeff_d", "Offline Efficiency_function_of_pT_d", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("offl_h_pTeff", "Offline Efficiency function of pT", 50, 0, 150)));
+
+  ANA_CHECK(book(TH1F("offl_h_z0eff_n", "Offline Efficiency_function_of_z0_n", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("offl_h_z0eff_d", "Offline Efficiency_function_of_z0_d", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("offl_h_z0eff", "Offline Efficiency function of z0", 100, -500, 500)));
+  
+  ANA_CHECK(book(TH1F("offl_h_TDLeff_n", "Efficiency_function_of_TDL_n", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("offl_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("offl_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
+
+
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
 
   ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
@@ -254,7 +262,6 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_pTeff_n", "Efficiency_function_of_pT_n", 50, 0, 150)));
   ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 150)));
   ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 50, 0, 150)));
-
 
   //logarithmic pT values
   const Int_t nbins = 100;
@@ -277,13 +284,30 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
   ANA_CHECK(book(TH1F("trig_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
 
+  ANA_CHECK(book(TH1F("trig_h_z0eff_n", "Efficiency_function_of_z0_n", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("trig_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("trig_h_z0eff", "Efficiency_function_of_z0", 100, -500, 500)));
+
+  
   ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 100, -300, 300)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 100, -300, 300)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 100, -300, 300)));
 
-  ANA_CHECK(book(TH1F("trig_h_z0eff_n", "Efficiency_function_of_z0_n", 100, -500, 500)));
-  ANA_CHECK(book(TH1F("trig_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
-  ANA_CHECK(book(TH1F("trig_h_z0eff", "Efficiency_function_of_z0", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("tgof_h_etaeff_n", "Efficiency_function_of_eta_n", 50, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("tgof_h_etaeff_d", "Efficiency_function_of_eta_d", 50, -3.2, 3.2)));
+  ANA_CHECK(book(TH1F("tgof_h_etaeff", "Efficiency_function_of_eta", 50, -3.2, 3.2)));
+
+  ANA_CHECK(book(TH1F("tgof_h_pTeff_n", "Efficiency_function_of_pT_n", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("tgof_h_pTeff_d", "Efficiency_function_of_pT_d", 50, 0, 150)));
+  ANA_CHECK(book(TH1F("tgof_h_pTeff", "Efficiency_function_of_pT", 50, 0, 150)));
+
+  ANA_CHECK(book(TH1F("tgof_h_z0eff_n", "Efficiency_function_of_z0_n", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("tgof_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
+  ANA_CHECK(book(TH1F("tgof_h_z0eff", "Efficiency_function_of_z0", 100, -500, 500)));
+
+  ANA_CHECK(book(TH1F("tgof_h_TDLeff_n", "Efficiency_function_of_TDL_n", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("tgof_h_TDLeff_d", "Efficiency_function_of_TDL_d", 100, 0, 1000)));
+  ANA_CHECK(book(TH1F("tgof_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
 
 
 
@@ -480,12 +504,16 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("offl_h_d0eff_n") -> Fill(truthd0val);
                   hist ("offl_h_etaeff_n") -> Fill(gchild->eta());
                   hist ("offl_h_pTeff_n") -> Fill(gchild->pt() / 1000);
+                  hist ("offl_h_TDLeff_n") -> Fill(RhTD_Length);
+                  hist ("offl_h_z0eff_n") -> Fill(cdecVtx->z());
                 } else{hist("h_offpass") -> Fill(0); }
 
 
                 hist ("offl_h_d0eff_d") -> Fill(truthd0val);
                 hist ("offl_h_etaeff_d") -> Fill(gchild->eta());
                 hist ("offl_h_pTeff_d") -> Fill(gchild->pt() / 1000);
+                hist ("offl_h_TDLeff_d") -> Fill(RhTD_Length);
+                hist ("offl_h_z0eff_d") -> Fill(cdecVtx->z());
                 //pEff->Fill(true,matched_offline -> d0());
                 
                 ANA_MSG_INFO("Track Pointer: " << matched_offline << " Truth Pointer: " << gchild << " mindr: " << mindr);
@@ -544,12 +572,12 @@ StatusCode MyxAODAnalysis :: execute ()
                     passedflag_ftf = true;
                 }
 
-                if (decaylength(cproVtx, cdecVtx) < 10){
+                if (RhTD_Length < 10){
                   hist("FTF_h_dphi_0-10") -> Fill ( gchild->phi() - matched_FTF->phi());
                   hist("FTF_h_dr_0-10") -> Fill (mindr);
                   hist("FTF_h_dz_0-10") -> Fill ( cdecVtx->z() - matched_FTF->z0());
 
-                } else if (20 < decaylength(cproVtx, cdecVtx) && decaylength(cproVtx, cdecVtx) < 30 ){
+                } else if (20 < RhTD_Length && RhTD_Length < 30 ){
                   hist("FTF_h_dphi_20-30") -> Fill ( gchild->phi() - matched_FTF->phi());
                   hist("FTF_h_dr_20-30") -> Fill (mindr);
                   hist("FTF_h_dz_20-30") -> Fill ( cdecVtx->z() - matched_FTF->z0());
@@ -649,11 +677,11 @@ StatusCode MyxAODAnalysis :: execute ()
                     passedflag_lrt = true;
                 }
 
-                if (decaylength(cproVtx, cdecVtx) < 10){
+                if (RhTD_Length < 10){
                   hist("LRT_h_dphi_0-10") -> Fill ( gchild->phi() - matched_LRT->phi());
                   hist("LRT_h_dr_0-10") -> Fill ( mindr);
                   hist("LRT_h_dz_0-10") -> Fill ( cdecVtx->z() - matched_LRT->z0());
-                } else if (20 < decaylength(cproVtx, cdecVtx) && decaylength(cproVtx, cdecVtx) < 30 ){
+                } else if (20 < RhTD_Length && RhTD_Length < 30 ){
                   hist("LRT_h_dphi_20-30") -> Fill ( gchild->phi() - matched_LRT->phi());
                   hist("LRT_h_dr_20-30") -> Fill ( mindr);
                   hist("LRT_h_dz_20-30") -> Fill ( cdecVtx->z() - matched_LRT->z0());
@@ -698,7 +726,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("trig_h_etaeff_n") -> Fill(gchild->eta());
                   hist ("trig_h_pTeff_n") -> Fill(gchild->pt() / 1000);
                   hist ("trig_h_pTefflog_n") -> Fill(gchild->pt() / 1000);
-                  hist ("trig_h_TDLeff_n") -> Fill(decaylength(cproVtx, cdecVtx));
+                  hist ("trig_h_TDLeff_n") -> Fill(RhTD_Length);
                   hist ("trig_h_z0eff_n") -> Fill(cdecVtx->z());
                 }
 
@@ -706,7 +734,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("trig_h_etaeff_d") -> Fill(gchild->eta());
                 hist ("trig_h_pTeff_d") -> Fill(gchild->pt() / 1000);
                 hist ("trig_h_pTefflog_d") -> Fill(gchild->pt() / 1000);
-                hist ("trig_h_TDLeff_d") -> Fill(decaylength(cproVtx, cdecVtx));
+                hist ("trig_h_TDLeff_d") -> Fill(RhTD_Length);
                 hist ("trig_h_z0eff_d") -> Fill(cdecVtx->z());
                 
               }
@@ -718,8 +746,19 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 if(passedflag_ofl) {
                   hist("tgof_h_d0eff_d") -> Fill(matched_offline -> d0());
+                  hist("tgof_h_etaeff_d") -> Fill(matched_offline->eta());
+                  hist("tgof_h_pTeff_d") -> Fill(matched_offline->pt() / 1000);
+                  hist("tgof_h_TDLeff_d") -> Fill(RhTD_Length);
+                  hist("tgof_h_z0eff_d") -> Fill(matched_offline->z0());
                   //if all three matches then fill it in
-                  if(passedflag_ftf || passedflag_lrt) hist("tgof_h_d0eff_n") -> Fill(matched_offline -> d0());
+                  if(passedflag_ftf || passedflag_lrt) {
+                    hist("tgof_h_d0eff_n") -> Fill(matched_offline -> d0());
+                    hist("tgof_h_etaeff_n") -> Fill(matched_offline->eta());
+                    hist("tgof_h_pTeff_n") -> Fill(matched_offline->pt() / 1000);
+                    hist("tgof_h_TDLeff_n") -> Fill(RhTD_Length);
+                    hist("tgof_h_z0eff_n") -> Fill(matched_offline->z0());
+                    
+                  }
                 }
               }
 

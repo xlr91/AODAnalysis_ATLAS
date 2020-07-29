@@ -133,6 +133,8 @@ void ExtractHisto(){
     h_name_h1_log.push_back("FTF_h_dphi_20-30");
     h_name_h1_log.push_back("FTF_h_deta");
 
+
+
     h_name_h1_log.push_back("LRT_h_dr");
     h_name_h1_log.push_back("LRT_h_dr_0-10");
     h_name_h1_log.push_back("LRT_h_dr_20-30");
@@ -226,6 +228,16 @@ void ExtractHisto(){
     h_eff_names.push_back("tgof_h_d0eff");
     h_eff_names.push_back("trig_h_z0eff");
     h_eff_names.push_back("trig_h_pTefflog");
+    h_eff_names.push_back("offl_h_z0eff");
+    h_eff_names.push_back("offl_h_TDLeff");
+    h_eff_names.push_back("tgof_h_etaeff");
+    h_eff_names.push_back("tgof_h_pTeff");
+    h_eff_names.push_back("tgof_h_z0eff");
+    h_eff_names.push_back("tgof_h_TDLeff");
+
+
+        
+    
     
 
 
@@ -248,6 +260,12 @@ void ExtractHisto(){
     h_eff_xlabel.push_back("d0 (mm) [respect to offline]");
     h_eff_xlabel.push_back("z0 (mm)");
     h_eff_xlabel.push_back("pT (GeV) [Log]");
+    h_eff_xlabel.push_back("z0 (mm)");
+    h_eff_xlabel.push_back("Transverse Decay Length (mm)");
+    h_eff_xlabel.push_back("eta");
+    h_eff_xlabel.push_back("pT (GeV)");
+    h_eff_xlabel.push_back("z0 (mm)");
+    h_eff_xlabel.push_back("Transverse Decay Length (mm)");
 
     TString efftitle;
 
@@ -267,7 +285,7 @@ void ExtractHisto(){
             pEff->SetMarkerStyle(20);
             pEff->SetMarkerColor(1);
             pEff -> Draw("APE0");
-            if ( i == 11) {
+            if (h_eff_names[i].EndsWith("log")) {
                 gPad->SetLogx(1);
             } else{
                 gPad->SetLogx(0);
