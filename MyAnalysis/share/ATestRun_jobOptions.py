@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 6 #3
+test = 2 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150

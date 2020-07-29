@@ -82,8 +82,10 @@ void ExtractHisto(){
 
     h_name_h1.push_back("LRT_h_NPix");
     h_name_h1.push_back("LRT_h_NSct");
+    h_name_h1.push_back("LRT_h_NCluster");
     h_name_h1.push_back("LRT_h_Nblayer");
     h_name_h1.push_back("LRT_h_NcontribPix");
+    
 
 
     h_name_h1.push_back("offline_h_dr");
@@ -167,11 +169,19 @@ void ExtractHisto(){
     h_name_h2.push_back("FTF_h_dphivTDLength");
     h_name_h2.push_back("LRT_h_phivTDLength");
     h_name_h2.push_back("LRT_h_dphivTDLength");
+    h_name_h2.push_back("LRT_h_drvTDLength");
+    h_name_h2.push_back("LRT_h_d0vTDLength");
+    h_name_h2.push_back("LRT_hNoCut_drvTDLength");
+    
     
     h_name_h2.push_back("FTF_h_NPixvd0");
     h_name_h2.push_back("FTF_h_NPixvTDLength");
     h_name_h2.push_back("LRT_h_NPixvd0");
     h_name_h2.push_back("LRT_h_NPixvTDLength");
+    h_name_h2.push_back("LRT_h_NSctvd0");
+    h_name_h2.push_back("LRT_h_NSctvTDLength");
+    h_name_h2.push_back("LRT_h_NClustervd0");
+    h_name_h2.push_back("LRT_h_NClustervTDLength");
 
     h_name_h2.push_back("FTF_h_dzvz");
     h_name_h2.push_back("LRT_h_dzvz");
@@ -206,7 +216,13 @@ void ExtractHisto(){
     for(Int_t j = 0; j < h_name_h2.size(); j++){
         current_histo = h_name_h2[j];
         h2 = (TH2F*) f -> Get(current_histo);
+        if(h_name_h2[j].EndsWith("drvTDLength")){
+            gStyle->SetOptStat(111111);
+        } else {
+            gStyle->SetOptStat(1111);
+        }
 
+        
         h2->Draw();
         c1 -> Print("plots/" + current_histo + ".png");
     }

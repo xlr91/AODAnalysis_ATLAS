@@ -181,14 +181,22 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("LRT_h_dz_20-30", "dz values for LRT tracks at 20-30 mm TDL", 300, -300, 300)));
   ANA_CHECK(book(TH2F("LRT_h_phivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("LRT_h_dphivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 40, 300, -0.001, 0.001)));
+  ANA_CHECK(book(TH2F("LRT_h_drvTDLength", "dR vs Transv. DecLengths for LRT", 60, 0, 400, 120, 0, 0.01))); //print out overflow 
+  ANA_CHECK(book(TH2F("LRT_h_d0vTDLength", "d0 vs Transv. DecLengths for LRT", 60, 0, 400, 300, -100, 100))); //print out overflow 
+  ANA_CHECK(book(TH2F("LRT_hNoCut_drvTDLength", "dR vs Transv. DecLengths for LRT (No Cuts)", 60, 0, 400, 80, 0, 0.1))); 
 
   ANA_CHECK(book(TH1F("LRT_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NSct", "Number of SCT Hits", 20, 0, 20)));
+  ANA_CHECK(book(TH1F("LRT_h_NCluster", "Number of SCT+Pixel Hits", 25, 0, 25)));
   ANA_CHECK(book(TH1F("LRT_h_Nblayer", "Number of Hits in the first layer (B-layer)", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NcontribPix", "Number of Contributing layer of the pixel detector", 20, 0, 20)));
 
   ANA_CHECK(book(TH2F("LRT_h_NPixvd0", "NPix vs d0 for LRT", 20, -100, 100, 20, 0, 20)));
   ANA_CHECK(book(TH2F("LRT_h_NPixvTDLength", "NPix vs Transv. DecLengths for LRT", 40, 0, 400, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("LRT_h_NSctvd0", "NSct vs d0 for LRT", 60, -300, 300, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("LRT_h_NSctvTDLength", "NSct vs Transv. DecLengths for LRT", 40, 0, 400, 20, 0, 20)));
+  ANA_CHECK(book(TH2F("LRT_h_NClustervd0", "NCluster vs d0 for LRT", 100, -300, 300, 25, 0, 25)));
+  ANA_CHECK(book(TH2F("LRT_h_NClustervTDLength", "NCluster vs Transv. DecLengths for LRT", 40, 0, 400, 25, 0, 25)));
   ANA_CHECK(book(TH2F("LRT_h_dzvz", "dz vs z LRT", 300, -300, 300, 50, -50, 50)));
 
   //Comparison Histograms
@@ -704,21 +712,30 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("LRT_h_deta") -> Fill ( gchild->eta() - matched_LRT->eta());
                   hist ("LRT_h_dz") -> Fill ( cdecVtx->z() - matched_LRT->z0());
                   hist ("LRT_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_LRT->phi());
+                  hist ("LRT_h_drvTDLength")->Fill (RhTD_Length, mindr);
+                  hist ("LRT_h_d0vTDLength")->Fill (RhTD_Length, matched_LRT -> d0());
+                  
 
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
 
                   hist ("LRT_h_NPix") -> Fill(NPix);
                   hist ("LRT_h_NSct") -> Fill(NSct);
+                  hist ("LRT_h_NCluster") -> Fill(NPix + NSct);
                   hist ("LRT_h_Nblayer") -> Fill(Nblayer);
                   hist ("LRT_h_NcontribPix") -> Fill(NcontribPix);
                   
                   hist ("LRT_h_NPixvd0") -> Fill(truthd0val, NPix);
                   hist ("LRT_h_NPixvTDLength") -> Fill(RhTD_Length, NPix);
+                  hist ("LRT_h_NSctvd0") -> Fill(truthd0val, NSct);
+                  hist ("LRT_h_NSctvTDLength") -> Fill(RhTD_Length, NSct);
+                  hist ("LRT_h_NClustervd0") -> Fill(truthd0val, NPix + NSct);
+                  hist ("LRT_h_NClustervTDLength") -> Fill(RhTD_Length, NPix + NSct);                                    
                   hist ("LRT_h_dzvz") -> Fill(matched_LRT->z0(), cdecVtx->z() - matched_LRT->z0());
                 } else{hist("h_lrtpass") -> Fill(0);}
 
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
+                hist ("LRT_hNoCut_drvTDLength")->Fill (RhTD_Length, mindr);
 
                 ///efficiency plot uses the truth values, but 'yes/no' on the booleans
                 if(passedflag_ftf || passedflag_lrt){
@@ -831,12 +848,22 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist("FTF_h_dphivTDLength") -> SetOption("box");
   hist("LRT_h_dphivTDLength") -> SetOption("box");
 
+  hist("LRT_h_drvTDLength") -> SetOption("box");
+  hist("LRT_h_d0vTDLength") -> SetOption("box");
+  hist("LRT_hNoCut_drvTDLength") -> SetOption("box");
+  
+
   hist("FTF_h_NPixvd0") -> SetOption("box");
   hist("FTF_h_NPixvTDLength") -> SetOption("box");
   hist("FTF_h_dzvz") -> SetOption("box");
 
   hist("LRT_h_NPixvd0") -> SetOption("box");
   hist("LRT_h_NPixvTDLength") -> SetOption("box");
+  hist("LRT_h_NSctvd0") -> SetOption("box");
+  hist("LRT_h_NSctvTDLength") -> SetOption("box");
+  hist("LRT_h_NClustervd0") -> SetOption("box");
+  hist("LRT_h_NClustervTDLength") -> SetOption("box");
+
   hist("LRT_h_dzvz") -> SetOption("box");
 
   
