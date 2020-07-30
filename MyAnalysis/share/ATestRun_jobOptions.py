@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 2 #3
+test = 3 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -9,7 +9,7 @@ ETACUTnumber = 0.1
 
 #original AOD file to test on (Offline only)
 if test == 0:
-    testFile = "/afs/cern.ch/user/e/emuhamma/public/run1000/AOD.pool.root"
+    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
     OFlag = True
     Tflag = True
 
@@ -34,7 +34,7 @@ if test == 3:
 #300 mm d0 (can chagne)
 if test == 4:
     testFile = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root"
-    OFlag = True
+    OFlag = False
     Tflag = True
 
 #muons with PU 40 with lrttest=4 (50mm d0Max)
