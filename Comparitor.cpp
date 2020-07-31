@@ -18,6 +18,7 @@ void Comparitor(TString test1, TString test2){
     TFile *f_2 = TFile::Open(filename2);
     
     TCanvas *c1 = new TCanvas("c1"," Efficiency ",50,50,1680,1050);
+    gStyle -> SetOptStat(0);
     TLegend *legend;
     TString efftitle1;
     TString efftitle2;
@@ -42,7 +43,13 @@ void Comparitor(TString test1, TString test2){
     //Comparing standard stuff 
     //1d
     std::vector<TString> h_name_h1;
+    h_name_h1.push_back("LRT_h_NPix");
+    h_name_h1.push_back("LRT_h_NSct");
     h_name_h1.push_back("LRT_h_NCluster");
+    h_name_h1.push_back("LRT_h_Nblayer");
+    h_name_h1.push_back("LRT_h_NcontribPix");
+    
+    h_name_h1.push_back("LRT_h_d0fakes");
 
     //TH1 Loop
     for(Int_t k = 0; k < h_name_h1.size(); k++){
@@ -59,7 +66,7 @@ void Comparitor(TString test1, TString test2){
         h1_1->Draw();
         h1_2->Draw("same");
 
-        legend = new TLegend(0.10,0.8,0.25,0.9);
+        legend = new TLegend(0.75,0.8,0.9,0.9);
         legend->SetHeader("Histogram Markers","C"); // option "C" allows to center the header
         legend->AddEntry(h1_1, test1);
         legend->AddEntry(h1_2, test2);
@@ -70,6 +77,12 @@ void Comparitor(TString test1, TString test2){
 
     //2d
     std::vector<TString> h_name_h2;
+    h_name_h2.push_back("LRT_h_NPixvd0");
+    h_name_h2.push_back("LRT_h_NPixvTDLength");
+    h_name_h2.push_back("LRT_h_NSctvd0");
+    h_name_h2.push_back("LRT_h_NSctvTDLength");
+    h_name_h2.push_back("LRT_h_NClustervd0");
+    
     h_name_h2.push_back("LRT_h_NClustervTDLength");
 
     //TH1 Loop
@@ -86,7 +99,7 @@ void Comparitor(TString test1, TString test2){
         h2_1->Draw();
         h2_2->Draw("samebox");
 
-        legend = new TLegend(0.10,0.8,0.25,0.9);
+        legend = new TLegend(0.75,0.8,0.9,0.9);
         legend->SetHeader("Histogram Markers","C"); // option "C" allows to center the header
         legend->AddEntry(h2_1, test1);
         legend->AddEntry(h2_2, test2);
@@ -101,6 +114,7 @@ void Comparitor(TString test1, TString test2){
     //List of Efficiency Histos to compare
     std::vector<TString> h_eff_names;
     h_eff_names.push_back("trig_h_d0eff");
+    h_eff_names.push_back("trig_h_TDLeff");
     /*
     h_eff_names.push_back("FTF_h_d0eff");
     h_eff_names.push_back("LRT_h_d0eff");
@@ -110,7 +124,7 @@ void Comparitor(TString test1, TString test2){
     h_eff_names.push_back("offl_h_d0eff");
     h_eff_names.push_back("offl_h_etaeff");
     h_eff_names.push_back("offl_h_pTeff");
-    h_eff_names.push_back("trig_h_TDLeff");
+    
     h_eff_names.push_back("tgof_h_d0eff");
     h_eff_names.push_back("trig_h_z0eff");
     h_eff_names.push_back("trig_h_pTefflog");
@@ -122,10 +136,12 @@ void Comparitor(TString test1, TString test2){
     h_eff_names.push_back("tgof_h_TDLeff");
     */
     
+    
 
     //List of Lables
     std::vector<TString> h_eff_xlabel;
     h_eff_xlabel.push_back("d0 (mm)");
+    h_eff_xlabel.push_back("Transverse Decay Length (mm)");
     /*
     h_eff_xlabel.push_back("d0 (mm) [FTF Only]");
     h_eff_xlabel.push_back("d0 (mm) [LRT Only]");
@@ -135,7 +151,7 @@ void Comparitor(TString test1, TString test2){
     h_eff_xlabel.push_back("d0 (mm)");
     h_eff_xlabel.push_back("eta");
     h_eff_xlabel.push_back("pT (GeV)");
-    h_eff_xlabel.push_back("Transverse Decay Length (mm)");
+    
     h_eff_xlabel.push_back("d0 (mm) [respect to offline]");
     h_eff_xlabel.push_back("z0 (mm)");
     h_eff_xlabel.push_back("pT (GeV) [Log]");
@@ -146,6 +162,7 @@ void Comparitor(TString test1, TString test2){
     h_eff_xlabel.push_back("z0 (mm)");
     h_eff_xlabel.push_back("Transverse Decay Length (mm)");
     */
+    
     
     //Comparing for Efficiencies
     for(Int_t i = 0; i < h_eff_names.size(); i++){

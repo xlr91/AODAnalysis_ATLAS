@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 3 #3
+test = 8 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -67,6 +67,11 @@ if test == 9:
     OFlag = True
     Tflag = True
 
+#Test18-21
+if test == 10:
+    testFile = "/scratch/emuhamma/testAOD/test21/AOD.pool.root"
+    OFlag = True
+    Tflag = True
 
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here

@@ -219,9 +219,9 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_etafakes_d", "Fakes_function_of_eta_n_FTF", 50, -3, 3)));
   ANA_CHECK(book(TH1F("FTF_h_etafakes", "Fakes_function_of_eta_FTF", 50, -3, 3)));
 
-  ANA_CHECK(book(TH1F("LRT_h_d0fakes_n", "Fakes_function_of_d0_n_LRT", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("LRT_h_d0fakes_d", "Fakes_function_of_d0_d_LRT", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("LRT_h_d0fakes", "Fakes_function_of_d0_LRT", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes_n", "Fakes_function_of_d0_n_LRT", 50, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes_d", "Fakes_function_of_d0_d_LRT", 50, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0fakes", "Fakes_function_of_d0_LRT", 50, -300, 300)));
 
   ANA_CHECK(book(TH1F("LRT_h_etafakes_n", "Fakes_function_of_eta_n_LRT", 50, -3, 3)));
   ANA_CHECK(book(TH1F("LRT_h_etafakes_d", "Fakes_function_of_eta_d_LRT", 50, -3, 3)));

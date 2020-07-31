@@ -14,6 +14,7 @@ void ExtractHisto(){
     TString filename = "MyxAODAnalysis.outputs.root";
     TFile *f = TFile::Open(filename);
     TCanvas *c1 = new TCanvas("c1"," Efficiency ",50,50,1680,1050);
+    
     TString current_histo; 
     TH1F *h1;
     TH2F *h2;
