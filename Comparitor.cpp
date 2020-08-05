@@ -12,6 +12,9 @@
 void Comparitor(TString test1, TString test2){
     TString filename1 = "roots/" + test1 + ".root";
     TString filename2 = "roots/" + test2 + ".root";
+
+    //TString filename1 = "/scratch/baines/signal_tau1nsAOD/AOD.pool.root";
+    //TString filename2 = "/scratch/baines/signal_tau1nsAOD/test13/AOD.pool.root";
     cout << filename1 << " " << filename2 << endl;
 
     TFile *f_1 = TFile::Open(filename1);
@@ -50,6 +53,7 @@ void Comparitor(TString test1, TString test2){
     h_name_h1.push_back("LRT_h_NcontribPix");
     
     h_name_h1.push_back("LRT_h_d0fakes");
+    h_name_h1.push_back("LRT_h_d0max_event");
 
     //TH1 Loop
     for(Int_t k = 0; k < h_name_h1.size(); k++){
@@ -115,7 +119,7 @@ void Comparitor(TString test1, TString test2){
     std::vector<TString> h_eff_names;
     h_eff_names.push_back("trig_h_d0eff");
     h_eff_names.push_back("trig_h_TDLeff");
-    /*
+    
     h_eff_names.push_back("FTF_h_d0eff");
     h_eff_names.push_back("LRT_h_d0eff");
     
@@ -134,7 +138,7 @@ void Comparitor(TString test1, TString test2){
     h_eff_names.push_back("tgof_h_pTeff");
     h_eff_names.push_back("tgof_h_z0eff");
     h_eff_names.push_back("tgof_h_TDLeff");
-    */
+    
     
     
 
@@ -142,7 +146,7 @@ void Comparitor(TString test1, TString test2){
     std::vector<TString> h_eff_xlabel;
     h_eff_xlabel.push_back("d0 (mm)");
     h_eff_xlabel.push_back("Transverse Decay Length (mm)");
-    /*
+    
     h_eff_xlabel.push_back("d0 (mm) [FTF Only]");
     h_eff_xlabel.push_back("d0 (mm) [LRT Only]");
     
@@ -161,7 +165,7 @@ void Comparitor(TString test1, TString test2){
     h_eff_xlabel.push_back("pT (GeV)");
     h_eff_xlabel.push_back("z0 (mm)");
     h_eff_xlabel.push_back("Transverse Decay Length (mm)");
-    */
+    
     
     
     //Comparing for Efficiencies

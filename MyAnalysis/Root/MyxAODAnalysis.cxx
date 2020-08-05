@@ -199,6 +199,10 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_NClustervTDLength", "NCluster vs Transv. DecLengths for LRT", 40, 0, 400, 25, 0, 25)));
   ANA_CHECK(book(TH2F("LRT_h_dzvz", "dz vs z LRT", 300, -300, 300, 50, -50, 50)));
 
+
+  ANA_CHECK(book(TH1F("LRT_h_d0max_event", "Maximum abs(d0) in each event for LRT tracks", 200, 0, 400))); 
+  
+
   //Comparison Histograms
   ANA_CHECK(book(TH1F("compare/h_d0diff_offline", "delta_d0 (Offline-truth)", 100, -2, 2)));
   ANA_CHECK(book(TH1F("compare/h_d0diff_FTF", "delta_d0 (FTF-truth)", 100, -2, 2)));
@@ -250,13 +254,13 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("offl_h_TDLeff", "Efficiency_function_of_TDL", 100, 0, 1000)));
 
 
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 60, -30, 30)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 60, -30, 30)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 60, -30, 30)));
 
-  ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -40, 40)));
-  ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -40, 40)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -300, 300)));
 
 
   ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 100, -300, 300)));
@@ -363,15 +367,15 @@ StatusCode MyxAODAnalysis :: execute ()
   // retrieve the eventInfo object from the event store
 
   //Access InDetTrackParticles
-  const xAOD::TruthParticleContainer* truthparticles;
-  const xAOD::TrackParticleContainer* offline_particles;
-  const xAOD::TrackParticleContainer* trig_FTFparticles;
-  const xAOD::TrackParticleContainer* trig_LRTparticles;
+  const xAOD::TruthParticleContainer* truthparticles = nullptr;
+  const xAOD::TrackParticleContainer* offline_particles = nullptr;
+  const xAOD::TrackParticleContainer* trig_FTFparticles = nullptr;
+  const xAOD::TrackParticleContainer* trig_LRTparticles = nullptr;
   
   //const xAOD::TruthParticle* matched_truth;
-  const xAOD::TrackParticle* matched_offline;
-  const xAOD::TrackParticle* matched_FTF;
-  const xAOD::TrackParticle* matched_LRT;
+  const xAOD::TrackParticle* matched_offline = nullptr;
+  const xAOD::TrackParticle* matched_FTF = nullptr;
+  const xAOD::TrackParticle* matched_LRT = nullptr;
   Float_t mindr;
   Float_t truthd0val;
   Bool_t passedflag_ofl = true;
@@ -384,6 +388,11 @@ StatusCode MyxAODAnalysis :: execute ()
   int NSct;
   int Nblayer;
   int NcontribPix;
+
+  const xAOD::TrackParticle* maxedd0_LRTTrack = nullptr;
+  Float_t maxedd0 = 0;
+
+  
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
   ANA_MSG_INFO("Found Truth, size is " << truthparticles->size());
@@ -651,6 +660,12 @@ StatusCode MyxAODAnalysis :: execute ()
                   }
                 } //end of LRT loop
 
+                if(abs(matched_LRT -> d0()) > maxedd0){
+                  maxedd0_LRTTrack = matched_LRT;
+                  maxedd0 = abs(maxedd0_LRTTrack -> d0());
+                  
+                }
+
                 NPix        = matched_LRT->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
                 NSct        = matched_LRT->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
                 Nblayer     = matched_LRT->summaryValue( dummy, xAOD::numberOfBLayerHits )        ? dummy :-1;
@@ -788,6 +803,9 @@ StatusCode MyxAODAnalysis :: execute ()
 
 
   } //end of truth loop
+
+  hist("LRT_h_d0max_event") -> Fill(maxedd0);
+  ANA_MSG_INFO("Max d0 in this event: " << maxedd0);
   return StatusCode::SUCCESS;
 }
 

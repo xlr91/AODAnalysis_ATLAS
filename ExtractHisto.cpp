@@ -86,8 +86,10 @@ void ExtractHisto(){
     h_name_h1.push_back("LRT_h_NCluster");
     h_name_h1.push_back("LRT_h_Nblayer");
     h_name_h1.push_back("LRT_h_NcontribPix");
-    
 
+    h_name_h1.push_back("LRT_h_d0max_event");
+
+    
 
     h_name_h1.push_back("offline_h_dr");
     h_name_h1.push_back("offline_h_d0");
