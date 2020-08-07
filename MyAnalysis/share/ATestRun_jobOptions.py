@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 10 #3
+test = 15 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -73,11 +73,44 @@ if test == 10:
     OFlag = True
     Tflag = True
 
-#Test22-25
+#Test22-26
 if test == 11:
-    testFile = "/scratch/emuhamma/testAOD/test25/AOD.pool.root"
+    testFile = "/scratch/emuhamma/testAOD/test22/AOD.pool.root"
     OFlag = True
     Tflag = True
+
+#John's new thing
+if test == 12:
+    testFile = "/scratch/baines/mrtest/AOD.pool.root"
+    OFlag = False
+    Tflag = True
+
+#multiple signal samples
+if test == 13:
+    testFile = ["/scratch/emuhamma/test21/signalstat/signalstat1/AOD.pool.root", 
+                "/scratch/emuhamma/test21/signalstat/signalstat2/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat3/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat4/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat5/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat6/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat7/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat8/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat9/AOD.pool.root",
+                "/scratch/emuhamma/test21/signalstat/signalstat10/AOD.pool.root"]
+    OFlag = True
+    Tflag = True
+
+#signal making trigger
+if test == 14:  
+    OFlag = True
+    Tflag = True
+    testFile = "/scratch/emuhamma/test21/signal/AOD.pool.root"
+
+ #prompt making trigger
+if test == 15:  
+    OFlag = True
+    Tflag = True
+    testFile = "/scratch/emuhamma/test21/prompt/AOD.pool.root"
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
 
@@ -87,6 +120,10 @@ if test == 11:
 
 #override next line on command line with: --filesInput=XXX
 jps.AthenaCommonFlags.FilesInput = [testFile] 
+
+if type(testFile) is list:
+    jps.AthenaCommonFlags.FilesInput = testFile
+
 
 #Specify AccessMode (read mode) ... ClassAccess is good default for xAOD
 jps.AthenaCommonFlags.AccessMode = "ClassAccess" 

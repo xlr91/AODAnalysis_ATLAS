@@ -317,10 +317,113 @@ void ExtractHisto(){
     }
 
 
+    
+
+    //Lmao time to superimpose offline with trigger
+    
+    bool eff1consistent;
+    bool eff2consistent;
+    TH1F *heffn_1;
+    TH1F *heffd_1;
+    TH1F *heffn_2;
+    TH1F *heffd_2;
+    TEfficiency* pEff1;
+    TEfficiency* pEff2;
+    TLegend *legend;
+    TString efftitle1;
+    TString efftitle2;
+
+    std::vector<TString> t_eff_impose;
+    t_eff_impose.push_back("trig_h_d0eff");
+    t_eff_impose.push_back("trig_h_etaeff");
+    t_eff_impose.push_back("trig_h_pTeff");
+    t_eff_impose.push_back("trig_h_TDLeff");
+
+    std::vector<TString> o_eff_impose;
+    o_eff_impose.push_back("offl_h_d0eff");
+    o_eff_impose.push_back("offl_h_etaeff");
+    o_eff_impose.push_back("offl_h_pTeff");
+    o_eff_impose.push_back("offl_h_TDLeff");
+    
+    std::vector<TString> to_eff_xlabel;
+    to_eff_xlabel.push_back("d0 (mm)");
+    to_eff_xlabel.push_back("eta");
+    to_eff_xlabel.push_back("pT (GeV)");
+    to_eff_xlabel.push_back("Transverse Decay Length (mm)");
 
 
+
+    for(Int_t i = 0; i < t_eff_impose.size(); i++){
+        heffn_1 = (TH1F*) f -> Get(t_eff_impose[i] + "_n");
+        heffd_1 = (TH1F*) f -> Get(t_eff_impose[i] + "_d");
+        heffn_2 = (TH1F*) f -> Get(o_eff_impose[i] + "_n");
+        heffd_2 = (TH1F*) f -> Get(o_eff_impose[i] + "_d");
+
+        if(TEfficiency::CheckConsistency(*heffn_1,*heffd_1)){
+            eff1consistent = true;
+            pEff1 = new TEfficiency(*heffn_1, *heffd_1);
+            efftitle1 = "Efficiency of " + to_eff_xlabel[i] + "; " + to_eff_xlabel[i] + "; Efficiency";
+        
+        } else{
+            eff1consistent = false;
+            cout << t_eff_impose[i] << " histogram is not consistent" << endl;
+        }
+
+        if(TEfficiency::CheckConsistency(*heffn_2,*heffd_2)){
+            eff2consistent = true;
+            pEff2 = new TEfficiency(*heffn_2, *heffd_2);
+            efftitle2 = "Efficiency of " + to_eff_xlabel[i] + "; " + to_eff_xlabel[i] + "; Efficiency";
+            
+        } else{
+            eff2consistent = false;
+            cout << o_eff_impose[i] << " histogram is not consistent" << endl;
+        }
+
+        if (eff1consistent && eff2consistent){
+            ///pEff1 properties
+            pEff1->SetTitle(efftitle1); 
+            pEff1->SetLineColor(2);
+            pEff1->SetMarkerStyle(23);
+            pEff1->SetMarkerColor(2);
+            pEff1->SetMarkerSize(1);
+            
+
+            ///pEff2 properties
+            pEff2->SetTitle(efftitle2); 
+            pEff2->SetLineColor(4);
+            pEff2->SetMarkerStyle(26);
+            pEff2->SetMarkerColor(4);
+            pEff2->SetMarkerSize(1);
+
+            //Legends
+            legend = new TLegend(0.75,0.8,0.9,0.9);
+            legend->SetHeader("Efficiency Markers","C"); // option "C" allows to center the header
+            legend->AddEntry(pEff1, "Trigger");
+            legend->AddEntry(pEff2,"Offline");
+            //legend->AddEntry("gr","Graph with error bars","lep");
+
+            //Draw          
+            pEff1 -> Draw();
+
+
+            gPad->Update(); 
+            auto graph = pEff1->GetPaintedGraph(); 
+            graph->SetMinimum(0);
+            graph->SetMaximum(1); 
+            gPad->Update(); 
+
+            pEff2 -> Draw("same");
+            legend-> Draw("same"); 
+            
+
+            //gr1 -> Draw("AP0");
+            //gr2 -> Draw("same");
+            c1 -> Print("plots/compare/" + t_eff_impose[i]+ "_v_"+o_eff_impose[i]+ ".png");
+        }
+    }
 
     
+
 
     
 
