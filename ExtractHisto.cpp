@@ -263,6 +263,8 @@ void ExtractHisto(){
     h_eff_names.push_back("tgof_h_z0eff");
     h_eff_names.push_back("tgof_h_TDLeff");
 
+    h_eff_names.push_back("muon/h_d0eff_standalone");
+
 
         
     
@@ -294,6 +296,8 @@ void ExtractHisto(){
     h_eff_xlabel.push_back("pT (GeV)");
     h_eff_xlabel.push_back("z0 (mm)");
     h_eff_xlabel.push_back("Transverse Decay Length (mm)");
+
+    h_eff_xlabel.push_back("d0 (mm)");
 
     TString efftitle;
 

@@ -12,6 +12,10 @@
 #include <xAODMuon/MuonContainer.h>
 #include <TEfficiency.h>
 #include "TCanvas.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+
+//#include "TrigMuonEvent/​MuonFeatureContainer.h"
 
 class MyxAODAnalysis : public EL::AnaAlgorithm
 {
@@ -52,6 +56,7 @@ private:
 
   bool m_offline_read;
   bool m_trigger_read;
+  bool m_muon_read;
 
   int m_cut;
   

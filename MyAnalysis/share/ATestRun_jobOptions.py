@@ -1,15 +1,16 @@
 
 
 #Job Properties
-test = 0 #3
+test = 16 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
 ETACUTnumber = 0.1
+Mflag = False
 
 #original AOD file to test on (Offline only)
 if test == 0:
-    testFile = "/afs/cern.ch/user/e/emuhamma/public/run/AOD.pool.root"
+    testFile = "/afs/cern.ch/user/e/emuhamma/public/runtest/AOD.pool.root"
     OFlag = True
     Tflag = True
 
@@ -112,6 +113,13 @@ if test == 15:
     Tflag = True
     testFile = "/scratch/emuhamma/test21/prompt/AOD.pool.root"
 
+#signal with muons  trigger
+if test == 16:  
+    OFlag = True
+    Tflag = False
+    Mflag = True
+    testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
+
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
 
 #testFile = os.getenv("ALRB_TutorialData") + '/r9315/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
@@ -141,6 +149,7 @@ alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 #alg.SampleName = 'Zee'
 alg.OfflineRead = OFlag
 alg.TriggerRead = Tflag
+alg.MuonRead = Mflag
 
 alg.cutnumber = J_CUTNUMBER
 

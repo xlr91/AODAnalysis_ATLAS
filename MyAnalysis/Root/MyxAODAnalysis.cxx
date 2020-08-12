@@ -28,6 +28,7 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 
   declareProperty( "TriggerRead", m_trigger_read = true, "If it reads the trigger containers");
   declareProperty( "OfflineRead", m_offline_read = true, "If it reads the offline containers");
+  declareProperty( "MuonRead",    m_muon_read = true, "If it reads the muon containers");
 
   declareProperty( "cutnumber", m_cut = 2, "Choose what kind of cut you want");
 }
@@ -337,6 +338,12 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trigger/h_FTF_d0max_event", "Maximum abs(d0) in each event for all tracks in FTF", 200, 0, 400))); 
   ANA_CHECK(book(TH1F("trigger/h_LRT_d0max_event", "Maximum abs(d0) in each event for all tracks in LRT", 200, 0, 400))); 
   ANA_CHECK(book(TH1F("trigger/h_LRT_trigd_d0max_event", "Maximum abs(d0) in each event for LRT tracks in a dR (0.2) cone around muons", 200, 0, 400))); //repurpose this for the max event muon
+
+
+  ANA_CHECK(book(TH1F("muon/h_d0eff_standalone_n", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+  ANA_CHECK(book(TH1F("muon/h_d0eff_standalone_d", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+  ANA_CHECK(book(TH1F("muon/h_d0eff_standalone", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+
   
   //maybe try to make something similar for the eta phi etc
 
@@ -384,16 +391,22 @@ StatusCode MyxAODAnalysis :: execute ()
   const xAOD::TrackParticleContainer* offline_particles = nullptr;
   const xAOD::TrackParticleContainer* trig_FTFparticles = nullptr;
   const xAOD::TrackParticleContainer* trig_LRTparticles = nullptr;
+  const xAOD::TrackParticleContainer* muons = nullptr;
+
+  
   
   //const xAOD::TruthParticle* matched_truth;
   const xAOD::TrackParticle* matched_offline = nullptr;
   const xAOD::TrackParticle* matched_FTF = nullptr;
   const xAOD::TrackParticle* matched_LRT = nullptr;
+  const xAOD::TrackParticle* matched_muon = nullptr;
+  
   Float_t mindr;
   Float_t truthd0val;
   Bool_t passedflag_ofl = true;
   Bool_t passedflag_ftf = true;
   Bool_t passedflag_lrt = true;
+  Bool_t passedflag_muon = true;
   Float_t RhTD_Length;
 
   uint8_t dummy(-1);
@@ -413,9 +426,20 @@ StatusCode MyxAODAnalysis :: execute ()
   Float_t maxedd0_LRT = -1;
   Float_t maxedd0_LRT_trigd  = -1;
 
-  const xAOD::MuonContainer* muon_container = nullptr;
-  ANA_CHECK (evtStore() -> retrieve (muon_container, "HLT_MuonFeatureContainer"));
-  ANA_MSG_INFO("Found muons, size is ");
+  if(m_muon_read){
+    
+    ANA_CHECK (evtStore()->retrieve (muons, "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"));
+    ANA_MSG_INFO("Found muons, size is " << muons -> size());
+
+    const xAOD::L2StandAloneMuonContainer* standalonemuons_container = nullptr;
+    ANA_CHECK (evtStore()->retrieve (standalonemuons_container, "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"));
+    ANA_MSG_INFO("Found standalone muons, size is " << standalonemuons_container -> size());
+    
+    for (const xAOD::L2StandAloneMuon* standalonemuon : *standalonemuons_container){
+      //ANA_MSG_INFO(standalonemuon -> x()); 
+      //find out a way to print d0 here
+    }
+  }
   
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
@@ -512,7 +536,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 //Cuts
                 //passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
                 //passedflag_ofl = cut2(mindr, m_drcut);
-
+                
                 switch(m_cut) {
                   case 0:
                     passedflag_ofl = true;
@@ -847,6 +871,48 @@ StatusCode MyxAODAnalysis :: execute ()
                 }
               }
 
+              if(m_muon_read){
+                
+                mindr = 2000;
+                matched_muon = nullptr;
+                //Track Loop
+                for (const xAOD::TrackParticle* muonpar : *muons){
+                  //finds matched track
+                  if(mindr > calcdr(gchild, muonpar)){
+                    mindr = calcdr(gchild, muonpar);
+                    matched_muon = muonpar;
+                  }
+                } //end of track loop
+
+                switch(m_cut) {
+                  case 0:
+                    passedflag_muon = true;
+                    break;
+                  case 1:
+                    passedflag_muon = cut1(gchild, matched_muon, m_etacut, m_phicut);
+                    break;
+                  case 2:
+                    passedflag_muon = cut2(mindr, m_drcut);
+                    break;
+                  case 3:
+                    passedflag_muon = cut2(abs(gchild->eta() - matched_muon->eta()), m_etacut);
+                    break;
+                  case 4:
+                    passedflag_muon = cut2(abs(gchild->phi() - matched_muon->phi()), m_phicut);
+                    break;
+                  case 5:
+                    passedflag_muon = cut2(abs(cdecVtx->z() - matched_muon->z0()), m_dzcut);
+                    break;
+                  default:
+                    passedflag_ofl = true;
+                }
+                
+                if (passedflag_muon){
+                  hist("muon/h_d0eff_standalone_n") -> Fill(truthd0val);
+                }
+                hist("muon/h_d0eff_standalone_d") -> Fill(truthd0val);
+
+              }
 
             }
           }// end of gchild loop
@@ -864,18 +930,22 @@ StatusCode MyxAODAnalysis :: execute ()
 
 
 
-
-  for (const xAOD::TrackParticle* FTF_T : *trig_FTFparticles){
-    if( abs(FTF_T -> d0()) > maxedd0_FTF){
-      maxedd0_FTF = abs(FTF_T -> d0());
+  if(m_trigger_read){
+    for (const xAOD::TrackParticle* FTF_T : *trig_FTFparticles){
+      if( abs(FTF_T -> d0()) > maxedd0_FTF){
+        maxedd0_FTF = abs(FTF_T -> d0());
+      }
     }
-  }
-  for (const xAOD::TrackParticle* LRT_T : *trig_LRTparticles){
-    if( abs(LRT_T -> d0()) > maxedd0_FTF){
-      maxedd0_LRT = abs(LRT_T -> d0());
+    for (const xAOD::TrackParticle* LRT_T : *trig_LRTparticles){
+      if( abs(LRT_T -> d0()) > maxedd0_FTF){
+        maxedd0_LRT = abs(LRT_T -> d0());
+      }
     }
   }
     
+
+  
+  
   hist("trigger/h_FTF_d0max_event") -> Fill(maxedd0_FTF);
   hist("trigger/h_LRT_d0max_event") -> Fill(maxedd0_LRT);
 
