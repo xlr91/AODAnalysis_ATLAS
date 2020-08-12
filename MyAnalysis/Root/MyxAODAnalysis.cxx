@@ -17,9 +17,7 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
   // declare all properties for your algorithm.  Note that things like
   // resetting statistics variables or booking histograms should
   // rather go into the initialize() function.
-  // declareProperty( "nonSTOP", m_nonSTOP = 0, "Desc?");
-  //declareProperty( "vector_test", vector_test, "A test for the existence of vectors ykno");
-  //declareProperty( "truth_vector", truth_vector, "Pointer Vector of Truth particles");
+
   // declareProperty( "TitleforJobOption", codetitle = 0, "Desc?");
   declareProperty( "drcut" , m_drcut  = 0.4, "Maximum value for the dr  cut");
   declareProperty( "etacut", m_etacut = 0.5, "Maximum value for the eta cut");
@@ -34,7 +32,7 @@ MyxAODAnalysis :: MyxAODAnalysis (const std::string& name,
 }
 
 Double_t MyxAODAnalysis::decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2){
-
+  //calculates decay length from a truth particle using their truth vertex (decay length not a method of truth particles)
   double_t result= pow((x1->x() - x2->x()), 2.0) + pow((x1->y() - x2->y()), 2.0) + pow((x1->z() - x2->z()), 2.0);
   return sqrt(result);
 }
@@ -45,35 +43,14 @@ Float_t MyxAODAnalysis::calcdr(const xAOD::TruthParticle* truth_p, const xAOD::T
 }
 
 Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p, const xAOD::TruthVertex* truth_v){
-  /*
-  Float_t num = (((truth_p -> prodVtx()) -> x()) * (truth_p -> px())) + (((truth_p -> prodVtx()) -> y()) * (truth_p -> py()));
-  Float_t dem = pow(((truth_p -> prodVtx()) -> x()), 2.0) + pow(((truth_p -> prodVtx()) -> y()), 2.0);
-  return num/(sqrt(dem));
-  */
-
-  /*
-  const xAOD::TruthVertex* pv = truth_p -> prodVtx();
-  Float_t num = (truth_p -> px() * pv -> y()) - (truth_p -> py() * pv -> x());
-  Float_t dem = sqrt(  pow( truth_p -> px() , 2.0) + pow(truth_p -> py() , 2.0) );
-  //Float_t num = (( pV-> y()) * (truth_p -> px())) - (((truth_p -> prodVtx()) -> x()) * (truth_p -> py()));
-  ///Float_t dem = pow(((truth_p -> prodVtx()) -> x()), 2.0) + pow(((truth_p -> prodVtx()) -> y()), 2.0);
-  //return num/(sqrt(dem));
-  return num/dem;
-  
-  */
-
-  ///*
   //https://arxiv.org/pdf/1405.6569.pdf page 35
   Float_t ans = ((truth_p -> prodVtx()) -> x() - (truth_v -> x())) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()- (truth_v -> y())) * cos(truth_p -> phi());
   return -ans;
-  //*/
-  
 }
 
 Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p){
   Float_t ans = ((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
   return -ans;
-  
 }
 
 
@@ -81,15 +58,12 @@ bool MyxAODAnalysis::cut1(const xAOD::TruthParticle* truth_p, const xAOD::TrackP
   bool ans = true;
   if( abs((truth_p->eta() - track_p->eta())) > eta_c  ||  
       abs((truth_p->phi() - track_p->phi())) > eta_p  ){
-    
     ans = false;
   }
   return ans;
 }
 
-//eventually make it more general the switch cut 
-
-//Dr
+//more general cut function
 bool MyxAODAnalysis::cut2(Float_t mndq, Float_t cut_c){
   bool ans = true;
   if(mndq > cut_c) ans = false;
@@ -104,18 +78,16 @@ StatusCode MyxAODAnalysis :: initialize ()
   // connected.
 
   ANA_MSG_INFO ("in initialize");
-  //ANA_CHECK (book (TH1F ("h_jetPt", "h_jetPt", 100, 0, 500))); // jet pt [GeV]
-  //ANA_CHECK(book(TH1F("fileIdentifier", "title in graph", no. of bins, min, max)));
 
   //Monitoring Histograms
-  ANA_CHECK(book(TH1F("h_truthDecayLength", "STop_Decay_Length", 100, 0, 10)));
-  ANA_CHECK(book(TH1F("h_childDecayLength", "RHadron_Decay_Length", 100, 0, 150)));
-  ANA_CHECK(book(TH1F("h_phiInOffline", "phi_In_Offline", 100, -3.15, -3.15)));
+  ANA_CHECK(book(TH1F("h_truthDecayLength", "STop_Decay_Length", 100, 0, 10))); //eg Stop
+  ANA_CHECK(book(TH1F("h_childDecayLength", "RHadron_Decay_Length", 100, 0, 150))); //eg RHadron
+  ANA_CHECK(book(TH1F("h_phiInOffline", "phi_In_Offline", 100, -3.15, -3.15))); 
   ANA_CHECK(book(TH1F("h_etaInOffline", "eta_In_Offline", 100, -5, -5)));
+  ///How many times the track passes or fails the cut (1 = pass, 0 = fails)
   ANA_CHECK(book(TH1F("h_offpass", "Passed off cut", 2, 0, 2)));
   ANA_CHECK(book(TH1F("h_ftfpass", "Passed ftf cut", 2, 0, 2)));
   ANA_CHECK(book(TH1F("h_lrtpass", "Passed lrt cut", 2, 0, 2)));
-
 
 
   //Truth Histograms
@@ -129,6 +101,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("truth_h_phivTDLength", "Phi vs Transv. DecLengths for offline", 300, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("truth_h_dphivTDLength", "dPhi vs Transv. DecLengths for truth", 300, 0, 20, 300, -0.001, 0.001)));
 
+
   //Offline Histograms
   ANA_CHECK(book(TH1F("offline_h_dr", "dR values for offline tracks", 100, 0, 0.15)));
   ANA_CHECK(book(TH1F("offline_h_d0", "d0 values for offline tracks", 300, -30, 30)));
@@ -140,6 +113,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("offline_h_dz", "dz values for offline tracks", 300, -1.2, 1.2)));
   ANA_CHECK(book(TH2F("offline_h_phivTDLength", "Phi vs Transv. DecLengths for offline", 300, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("offline_h_dphivTDLength", "dPhi vs Transv. DecLengths for offline", 300, 0, 40, 300, -0.001, 0.001)));
+
 
   //FTF Histograms
   ANA_CHECK(book(TH1F("FTF_h_dr", "dR values for FTF tracks", 300, 0, 0.1)));
@@ -159,12 +133,11 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_dz_20-30", "dz values for FTF tracks at 20-30 mm TDL", 300, -300, 300)));
   ANA_CHECK(book(TH2F("FTF_h_phivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("FTF_h_dphivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 40, 300, -0.001, 0.001)));
-
+  ///pixel/sct hit histograms
   ANA_CHECK(book(TH1F("FTF_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("FTF_h_NSct", "Number of SCT Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("FTF_h_Nblayer", "Number of Hits in the first layer (B-layer)", 20, 0, 20)));
   ANA_CHECK(book(TH1F("FTF_h_NcontribPix", "Number of Contributing layer of the pixel detector", 20, 0, 20)));
-
   ANA_CHECK(book(TH2F("FTF_h_NPixvd0", "NPix vs d0 for FTF", 20, -100, 100, 20, 0, 20)));
   ANA_CHECK(book(TH2F("FTF_h_NPixvTDLength", "NPix vs Transv. DecLengths for FTF", 40, 0, 400, 20, 0, 20)));
   ANA_CHECK(book(TH2F("FTF_h_dzvz", "dz vs z FTF", 300, -300, 300, 300, -300, 300)));
@@ -191,13 +164,12 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_drvTDLength", "dR vs Transv. DecLengths for LRT", 60, 0, 400, 120, 0, 0.01))); //print out overflow 
   ANA_CHECK(book(TH2F("LRT_h_d0vTDLength", "d0 vs Transv. DecLengths for LRT", 60, 0, 400, 300, -100, 100)));
   ANA_CHECK(book(TH2F("LRT_hNoCut_drvTDLength", "dR vs Transv. DecLengths for LRT (No Cuts)", 60, 0, 400, 80, 0, 0.1))); 
-
+  ///pixel/sct hit histograms
   ANA_CHECK(book(TH1F("LRT_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NSct", "Number of SCT Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NCluster", "Number of SCT+Pixel Hits", 25, 0, 25)));
   ANA_CHECK(book(TH1F("LRT_h_Nblayer", "Number of Hits in the first layer (B-layer)", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NcontribPix", "Number of Contributing layer of the pixel detector", 20, 0, 20)));
-
   ANA_CHECK(book(TH2F("LRT_h_NPixvd0", "NPix vs d0 for LRT", 20, -100, 100, 20, 0, 20)));
   ANA_CHECK(book(TH2F("LRT_h_NPixvTDLength", "NPix vs Transv. DecLengths for LRT", 40, 0, 400, 20, 0, 20)));
   ANA_CHECK(book(TH2F("LRT_h_NSctvd0", "NSct vs d0 for LRT", 60, -300, 300, 20, 0, 20)));
@@ -206,22 +178,18 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_NClustervTDLength", "NCluster vs Transv. DecLengths for LRT", 40, 0, 400, 25, 0, 25)));
   ANA_CHECK(book(TH2F("LRT_h_dzvz", "dz vs z LRT", 300, -300, 300, 50, -50, 50)));
 
-
   
-  
-
   //Comparison Histograms
   ANA_CHECK(book(TH1F("compare/h_d0diff_offline", "delta_d0 (Offline-truth)", 100, -2, 2)));
   ANA_CHECK(book(TH1F("compare/h_d0diff_FTF", "delta_d0 (FTF-truth)", 100, -2, 2)));
   ANA_CHECK(book(TH1F("compare/h_d0diff_LRT", "delta_d0 (LRT-truth)", 100, -2, 2)));
-
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_offline", "truth_d0_vs_offline_d0", 100, -10, 10, 100, -50, 50)));
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_FTF", "truth_d0_vs_FTF_d0", 100, -50, 50, 100, -50, 50))); // -10/ 10
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_LRT", "truth_d0_vs_LRT_d0", 100, -50, 50, 100, -50, 50))); 
   ANA_CHECK(book(TH2F("compare/h_d0truthvtrack_All", "truth_d0_vs_All_d0", 100, -10, 10, 100, -50, 50))); 
 
   
-  //Fakes 
+  //Fakes
   ANA_CHECK(book(TH1F("FTF_h_d0fakes_n", "Fakes_function_of_d0_n_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0fakes_d", "Fakes_function_of_d0_d_FTF", 50, -40, 40)));
   ANA_CHECK(book(TH1F("FTF_h_d0fakes", "Fakes_function_of_d0_FTF", 50, -40, 40)));
@@ -240,6 +208,7 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 
   //Efficiencies
+  ///offline respect to truth
   ANA_CHECK(book(TH1F("offl_h_d0eff_n", "Offline Efficiency function of d0 n", 25, -300, 300)));
   ANA_CHECK(book(TH1F("offl_h_d0eff_d", "Offline Efficiency function of d0 d", 25, -300, 300)));
   ANA_CHECK(book(TH1F("offl_h_d0eff", "Offline Efficiency function of d0", 25, -300, 300)));
@@ -260,16 +229,15 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("offl_h_TDLeff_d", "Efficiency_function_of_TDL_d", 40, 0, 400)));
   ANA_CHECK(book(TH1F("offl_h_TDLeff", "Efficiency_function_of_TDL", 40, 0, 400)));
 
-
+  ///FTF and LRT respect to truth
   ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 60, -30, 30)));
   ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 60, -30, 30)));
   ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 60, -30, 30)));
-
   ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -300, 300)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -300, 300)));
   ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -300, 300)));
 
-
+  ///Trigger respect to truth
   ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 25, -300, 300)));
   ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 25, -300, 300)));
   ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 25, -300, 300)));
@@ -282,7 +250,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_pTeff_d", "Efficiency_function_of_pT_d", 25, 0, 150)));
   ANA_CHECK(book(TH1F("trig_h_pTeff", "Efficiency_function_of_pT", 25, 0, 150)));
 
-  //logarithmic pT values
+  ////logarithmic pT values
   const Int_t nbins = 100;
   Double_t xmin = 1e-1;
   Double_t xmax = 1e2;
@@ -307,7 +275,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trig_h_z0eff_d", "Efficiency_function_of_z0_d", 100, -500, 500)));
   ANA_CHECK(book(TH1F("trig_h_z0eff", "Efficiency_function_of_z0", 100, -500, 500)));
 
-  
+  ///Trigger respect to offline
   ANA_CHECK(book(TH1F("tgof_h_d0eff_n", "Efficiency_function_of_d0_n", 25, -300, 300)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 25, -300, 300)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 25, -300, 300)));
@@ -330,8 +298,7 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 
 
-  
-  ///Trigger-making plots:
+  ///Trigger-making plots (in progress):
   ANA_CHECK(book(TH1F("trigger/h_muonsig_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (signal muons)", 200, 0, 400)));
   ANA_CHECK(book(TH1F("trigger/h_muonprt_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (prompt muons)", 200, 0, 3))); 
   
@@ -345,25 +312,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("muon/h_d0eff_standalone", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
 
   
-  //maybe try to make something similar for the eta phi etc
-
-  //ANA_CHECK(regEfficiency("testthign", TEfficiency("testeff","Efficiency (Unmanaged)",300, -30, 30)));
-  //ANA_CHECK(regEfficiency("test"));
-
-  //  ANA_CHECK(pEff = new TEfficiency("Efficiency","Efficiency (Unmanaged)",300, -30, 30));
-
-  /*
-  //ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 300, -30, 30)));
-  //ANA_CHECK(book(TH1F("h_etaeff", "Efficiency_function_of_eta", 300, 0, 5)));
-  ///ANA_CHECK(book(TH1F("h_pTeff", "Efficiency_function_of_pT", 300, 0, 10)));
-  */
   
-
-  //check number of parents the muons have (just for head purposes)
-  ///ANA_CHECK(book(TH1F("h_muon_parent", "MuonParents", 100, 0, 10)));
-
-  
-
   ANA_MSG_INFO("Offline: " << m_offline_read << " Trigger Read: " <<  m_trigger_read);
   ANA_MSG_INFO("Cut: " << m_cut);
   ANA_MSG_INFO("dr   cut: " << m_drcut);
@@ -384,62 +333,41 @@ StatusCode MyxAODAnalysis :: execute ()
   // histograms and trees.  This is where most of your actual analysis
   // code will go.
   ANA_MSG_INFO ("in execute");
-  // retrieve the eventInfo object from the event store
-
+  
   //Access InDetTrackParticles
   const xAOD::TruthParticleContainer* truthparticles = nullptr;
   const xAOD::TrackParticleContainer* offline_particles = nullptr;
   const xAOD::TrackParticleContainer* trig_FTFparticles = nullptr;
   const xAOD::TrackParticleContainer* trig_LRTparticles = nullptr;
-  const xAOD::TrackParticleContainer* muons = nullptr;
-
+  const xAOD::TrackParticleContainer* combinedmuon_container = nullptr;
   
-  
-  //const xAOD::TruthParticle* matched_truth;
   const xAOD::TrackParticle* matched_offline = nullptr;
   const xAOD::TrackParticle* matched_FTF = nullptr;
   const xAOD::TrackParticle* matched_LRT = nullptr;
-  const xAOD::TrackParticle* matched_muon = nullptr;
+  const xAOD::TrackParticle* matched_combinedmuon = nullptr;
   
   Float_t mindr;
   Float_t truthd0val;
+  Float_t RhTD_Length;
+
   Bool_t passedflag_ofl = true;
   Bool_t passedflag_ftf = true;
   Bool_t passedflag_lrt = true;
   Bool_t passedflag_muon = true;
-  Float_t RhTD_Length;
-
+  
   uint8_t dummy(-1);
   int NPix;
   int NSct;
   int Nblayer;
   int NcontribPix;
-
-  //const xAOD::TrackParticle* maxedd0_LRTTrack = nullptr;
   
-
   Float_t maxedd0_muon_sig = -1;
   Float_t maxedd0_muon_prt = -1;
-
-
   Float_t maxedd0_FTF = -1;
   Float_t maxedd0_LRT = -1;
   Float_t maxedd0_LRT_trigd  = -1;
 
-  if(m_muon_read){
-    
-    ANA_CHECK (evtStore()->retrieve (muons, "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"));
-    ANA_MSG_INFO("Found muons, size is " << muons -> size());
 
-    const xAOD::L2StandAloneMuonContainer* standalonemuons_container = nullptr;
-    ANA_CHECK (evtStore()->retrieve (standalonemuons_container, "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"));
-    ANA_MSG_INFO("Found standalone muons, size is " << standalonemuons_container -> size());
-    
-    for (const xAOD::L2StandAloneMuon* standalonemuon : *standalonemuons_container){
-      //ANA_MSG_INFO(standalonemuon -> x()); 
-      //find out a way to print d0 here
-    }
-  }
   
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
@@ -456,32 +384,45 @@ StatusCode MyxAODAnalysis :: execute ()
     ANA_MSG_INFO("Found LRT, size is " << trig_LRTparticles->size());
   }
 
+  //still in progress
+  if(m_muon_read){
+  
+    ANA_CHECK (evtStore()->retrieve (combinedmuon_container, "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"));
+    ANA_MSG_INFO("Found muons, size is " << combinedmuon_container -> size());
+
+    const xAOD::L2StandAloneMuonContainer* standalonemuons_container = nullptr;
+    ANA_CHECK (evtStore()->retrieve (standalonemuons_container, "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"));
+    ANA_MSG_INFO("Found standalone muons, size is " << standalonemuons_container -> size());
+    
+    for (const xAOD::L2StandAloneMuon* standalonemuon : *standalonemuons_container){
+      //ANA_MSG_INFO(standalonemuon -> x()); 
+      //find out a way to print d0 here
+    }
+  }
+
   //truth loop
   //finds only those that goes STop -> RHadron -> muon
   for (const xAOD::TruthParticle* truth : *truthparticles) {
-    //ANA_MSG_INFO("PDGID " << truth->absPdgId());
     if (truth->absPdgId() == 1000006) {     
       if (truth->nChildren() > 1) {
         for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
-          
           const xAOD::TruthParticle* child=truth->child(ichild);
           for (int igchild=0; igchild< child->nChildren() ; igchild++) {
-            
             const xAOD::TruthParticle* gchild=child->child(igchild);
-            if(gchild == nullptr){
+            if(gchild == nullptr){ //checks for nullptr as that would break the alg
               ANA_MSG_WARNING("Nullptr alert in gchild");
               continue;
             }
-
-            if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
+            if (gchild->absPdgId() == 13){ 
+              // at this point everything below are muons from RHadrons from Stops
               
-              //Get the decay lengths of stop (expected to be 0) and RHadron (expected to be about 20 mm)
+              //Get the decay lengths of stop (expected to be 0) and RHadron (varies)
               const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
               const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
               const xAOD::TruthVertex* cproVtx = child->prodVtx(); 
               const xAOD::TruthVertex* cdecVtx = child->decayVtx(); 
 
-              if (tproVtx == nullptr || tdecVtx == nullptr || cproVtx == nullptr || cdecVtx== nullptr){
+              if (tproVtx == nullptr || tdecVtx == nullptr || cproVtx == nullptr || cdecVtx== nullptr){ //another nullptr check grr
                  ANA_MSG_WARNING("Nullptr alert in gchild vector"); 
                  continue;
               }
@@ -489,40 +430,33 @@ StatusCode MyxAODAnalysis :: execute ()
               truthd0val = truthd0(gchild, cproVtx);
               RhTD_Length = sqrt(pow((cproVtx->x() - cdecVtx->x()), 2.0) + pow((cproVtx->y() - cdecVtx->y()), 2.0)); 
 
-              //JB CUTS TO TRUTH PARTICLE
-              //if truth particle takesi n these values, continue
-              if(gchild -> pt() < 1000 ||
-                 abs(gchild -> eta()) > 2.5 ||
-                 RhTD_Length > 400 ||
-                 abs(truthd0val) > 300
-                ){
-                  ANA_MSG_INFO("You've been triggered");
+              
+              //cuts to truth particle (reasoning is that our trigger tracks wouldnt be able to reconstruct these)
+              if(gchild -> pt() < 1000 || abs(gchild -> eta()) > 2.5 || RhTD_Length > 400 || abs(truthd0val) > 300){
+                  ANA_MSG_INFO("Truth particle unreconstructable");
                   continue;
               }
 
+              //finds maximum d0 from the muons found in the signal sample (RHadrons)
               if(maxedd0_muon_sig < truthd0val){
                 maxedd0_muon_sig = truthd0val; 
               }
               
-
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
-
               hist ("truth_h_d0")->Fill (truthd0val);
-              //ANA_MSG_INFO("PV x: " << cproVtx -> x() << " y: " << cproVtx -> y()  << " z: " << cproVtx -> z() );
               hist ("truth_h_eta")->Fill (gchild -> eta());                
               hist ("truth_h_pT")->Fill (gchild -> pt() / 1000);
 
 
-              ////Offline Tracks
+              //Offline Tracks algorithm //note: would be nice to move this to a separate function 
               if(m_offline_read){
-                
+
                 mindr = 2000;
                 matched_offline = nullptr;
-                //Track Loop
+
+                //Track Loop to find matched track 
                 for (const xAOD::TrackParticle* offline : *offline_particles){
-                  track_test.push_back(offline); //sanity check
-                  //finds matched track
                   if(mindr > calcdr(gchild, offline)){
                     mindr = calcdr(gchild, offline);
                     matched_offline = offline;
@@ -530,13 +464,6 @@ StatusCode MyxAODAnalysis :: execute ()
                 } //end of track loop
                 
 
-                //Result of matching truth muon tracks with the reco tracks
-                //hist ("offline_h_dr")->Fill(0);
-
-                //Cuts
-                //passedflag_ofl = cut1(gchild, matched_offline, m_etacut, m_phicut);
-                //passedflag_ofl = cut2(mindr, m_drcut);
-                
                 switch(m_cut) {
                   case 0:
                     passedflag_ofl = true;
@@ -559,9 +486,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   default:
                     passedflag_ofl = true;
                 }
-
-                ANA_MSG_INFO("Cut Chosen is " << m_cut);
-                //ANA_MSG_INFO("Passed ofl cut: " << passedflag_ofl);
+                
 
                 if (passedflag_ofl){
                   hist("h_offpass") -> Fill(1);
@@ -576,10 +501,8 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("offline_h_dphi") -> Fill ( gchild->phi() - matched_offline->phi() );
                   hist ("offline_h_deta") -> Fill ( gchild->eta() - matched_offline->eta());
                   hist ("offline_h_dz") -> Fill ( cdecVtx->z() - matched_offline->z0());
-
-                  
+            
                   hist ("offline_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_offline->phi());
-                  
                   hist ("offline_h_phivTDLength")->Fill (RhTD_Length, matched_offline->phi());
 
                   hist ("offl_h_d0eff_n") -> Fill(truthd0val);
@@ -587,49 +510,48 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("offl_h_pTeff_n") -> Fill(gchild->pt() / 1000);
                   hist ("offl_h_TDLeff_n") -> Fill(RhTD_Length);
                   hist ("offl_h_z0eff_n") -> Fill(cdecVtx->z());
-                } else{hist("h_offpass") -> Fill(0); }
-
+                } else {
+                  hist("h_offpass") -> Fill(0);
+                }
 
                 hist ("offl_h_d0eff_d") -> Fill(truthd0val);
                 hist ("offl_h_etaeff_d") -> Fill(gchild->eta());
                 hist ("offl_h_pTeff_d") -> Fill(gchild->pt() / 1000);
                 hist ("offl_h_TDLeff_d") -> Fill(RhTD_Length);
                 hist ("offl_h_z0eff_d") -> Fill(cdecVtx->z());
-                //pEff->Fill(true,matched_offline -> d0());
                 
-                ANA_MSG_INFO("Track Pointer: " << matched_offline << " Truth Pointer: " << gchild << " mindr: " << mindr);
               }
 
-              //The great trigger algorithm
-              ///////////FTF
+              //Trigger Algorithm
               if(m_trigger_read){
+                //FTF First
                 mindr = 2000;
                 matched_FTF = nullptr;
+                //finds matched track
                 for (const xAOD::TrackParticle* FTF_T : *trig_FTFparticles){
-                  //finds matched track
                   if(mindr > calcdr(gchild, FTF_T)){
                     mindr = calcdr(gchild, FTF_T);
                     matched_FTF = FTF_T;
                   }
 
+                  //fake plotter
                   if(calcdr(gchild, FTF_T) < 0.01){
                     hist ("FTF_h_d0fakes_d") -> Fill(truthd0val);
                     hist ("FTF_h_etafakes_d") -> Fill(gchild -> eta());
                   }
-                  ///if mindr < 0.01 of the thingy
-                  ///fill in the histograms 
-                  
-                } //end of FTF loop
 
+                } //end of FTF loop
+    
+                hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("FTF_h_etafakes_n") -> Fill(gchild -> eta());
+
+                //Grabbing Pixel and SCT information
                 NPix        = matched_FTF->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
                 NSct        = matched_FTF->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
                 Nblayer     = matched_FTF->summaryValue( dummy, xAOD::numberOfBLayerHits )        ? dummy :-1;
                 NcontribPix = matched_FTF->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
 
-                hist ("FTF_h_d0fakes_n") -> Fill(truthd0val);
-                hist ("FTF_h_etafakes_n") -> Fill(gchild -> eta());
 
-                //chooses what kind of cuts is used
                 switch(m_cut) {
                   case 0:
                     passedflag_ftf = true;
@@ -657,12 +579,10 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("FTF_h_dphi_0-10") -> Fill ( gchild->phi() - matched_FTF->phi());
                   hist("FTF_h_dr_0-10") -> Fill (mindr);
                   hist("FTF_h_dz_0-10") -> Fill ( cdecVtx->z() - matched_FTF->z0());
-
                 } else if (20 < RhTD_Length && RhTD_Length < 30 ){
                   hist("FTF_h_dphi_20-30") -> Fill ( gchild->phi() - matched_FTF->phi());
                   hist("FTF_h_dr_20-30") -> Fill (mindr);
                   hist("FTF_h_dz_20-30") -> Fill ( cdecVtx->z() - matched_FTF->z0());
-
                 }
 
 
@@ -680,7 +600,6 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_dphi") -> Fill ( gchild->phi() - matched_FTF->phi() );
                   hist ("FTF_h_deta") -> Fill ( gchild->eta() - matched_FTF->eta());
                   hist ("FTF_h_dz") -> Fill ( cdecVtx->z() - matched_FTF->z0());
-                  //ANA_MSG_INFO("Truthz: "<< cdecVtx->z() << " Trackz: " << matched_FTF->z0());
                   hist ("FTF_h_dphivTDLength")->Fill (RhTD_Length, gchild->phi() - matched_FTF->phi());
 
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
@@ -694,24 +613,16 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("FTF_h_NPixvd0") -> Fill(truthd0val, NPix);
                   hist ("FTF_h_NPixvTDLength") -> Fill(RhTD_Length, NPix);
                   hist ("FTF_h_dzvz") -> Fill(matched_FTF->z0(), cdecVtx->z() - matched_FTF->z0());
-
-
-                  
-
-                } else{hist("h_ftfpass") -> Fill(0);}
+                } else {
+                  hist("h_ftfpass") -> Fill(0);
+                }
 
                 hist ("FTF_h_d0eff_d") -> Fill(truthd0val);                
 
-                ///////////LRT
+                //LRT
                 mindr = 2000;
                 matched_LRT = nullptr;
                 for (const xAOD::TrackParticle* LRT_T : *trig_LRTparticles){
-                  //track_test.push_back(offline); //sanity check
-
-                  //Monitoring Histograms
-                  //hist ("h_phiInOffline")->Fill(offline -> phi());
-                  //hist ("h_etaInOffline")->Fill(offline -> eta());
-                  
                   //finds matched track
                   if(mindr > calcdr(gchild, LRT_T)){
                     mindr = calcdr(gchild, LRT_T);
@@ -730,29 +641,17 @@ StatusCode MyxAODAnalysis :: execute ()
                     if(abs(LRT_T -> d0()) > maxedd0_LRT_trigd){
                       maxedd0_LRT_trigd = abs(LRT_T -> d0());
                     }
-
                   }
-
                 } //end of LRT loop
 
-                /*
-                if(abs(matched_LRT -> d0()) > maxedd0_LRT_trigd ){
-                  maxedd0_LRTTrack = matched_LRT;
-                  maxedd0_LRT_trigd  = abs(maxedd0_LRTTrack -> d0());
-                  
-                }
-                */
+                hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
+                hist ("LRT_h_etafakes_n") -> Fill(gchild -> eta());
 
+                //grab sct/pix informatoin
                 NPix        = matched_LRT->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
                 NSct        = matched_LRT->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
                 Nblayer     = matched_LRT->summaryValue( dummy, xAOD::numberOfBLayerHits )        ? dummy :-1;
                 NcontribPix = matched_LRT->summaryValue( dummy, xAOD::numberOfContribPixelLayers )? dummy :-1;
-
-                hist ("LRT_h_d0fakes_n") -> Fill(truthd0val);
-                hist ("LRT_h_etafakes_n") -> Fill(gchild -> eta());
-                //cuts
-                //passedflag_lrt = cut1(gchild, matched_LRT, m_etacut, m_phicut);
-                ///passedflag_lrt = cut2(mindr, m_drcut);
                 
                 switch(m_cut) {
                   case 0:
@@ -807,7 +706,6 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist ("LRT_h_drvTDLength")->Fill (RhTD_Length, mindr);
                   hist ("LRT_h_d0vTDLength")->Fill (RhTD_Length, matched_LRT -> d0());
                   
-
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
 
@@ -829,7 +727,11 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
                 hist ("LRT_hNoCut_drvTDLength")->Fill (RhTD_Length, mindr);
 
-                ///efficiency plot uses the truth values, but 'yes/no' on the booleans
+
+
+
+                //Efficiency plots for trigger 
+                //Plots it if is passes either the FTF or LRT cuts
                 if(passedflag_ftf || passedflag_lrt){
                   hist ("trig_h_d0eff_n") -> Fill(truthd0val);
                   hist ("trig_h_etaeff_n") -> Fill(gchild->eta());
@@ -848,7 +750,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 
               }
 
-              //trig wrt off
+              //trigger with respect to offline
               if (m_offline_read && m_trigger_read){
                 ///at this point it found the matched offline and matched trigger
                 ///so fill in the denominator if the current offline track passed thru the cut 
@@ -859,6 +761,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("tgof_h_pTeff_d") -> Fill(matched_offline->pt() / 1000);
                   hist("tgof_h_TDLeff_d") -> Fill(RhTD_Length);
                   hist("tgof_h_z0eff_d") -> Fill(matched_offline->z0());
+
                   //if all three matches then fill it in
                   if(passedflag_ftf || passedflag_lrt) {
                     hist("tgof_h_d0eff_n") -> Fill(matched_offline -> d0());
@@ -866,21 +769,20 @@ StatusCode MyxAODAnalysis :: execute ()
                     hist("tgof_h_pTeff_n") -> Fill(matched_offline->pt() / 1000);
                     hist("tgof_h_TDLeff_n") -> Fill(RhTD_Length);
                     hist("tgof_h_z0eff_n") -> Fill(matched_offline->z0());
-                    
                   }
                 }
               }
 
-              if(m_muon_read){
-                
+              //muon reading
+              //still in progress
+              if(m_muon_read){                
                 mindr = 2000;
-                matched_muon = nullptr;
-                //Track Loop
-                for (const xAOD::TrackParticle* muonpar : *muons){
-                  //finds matched track
+                matched_combinedmuon = nullptr;
+                //finds matched track
+                for (const xAOD::TrackParticle* muonpar : *combinedmuon_container){
                   if(mindr > calcdr(gchild, muonpar)){
                     mindr = calcdr(gchild, muonpar);
-                    matched_muon = muonpar;
+                    matched_combinedmuon = muonpar;
                   }
                 } //end of track loop
 
@@ -889,38 +791,37 @@ StatusCode MyxAODAnalysis :: execute ()
                     passedflag_muon = true;
                     break;
                   case 1:
-                    passedflag_muon = cut1(gchild, matched_muon, m_etacut, m_phicut);
+                    passedflag_muon = cut1(gchild, matched_combinedmuon, m_etacut, m_phicut);
                     break;
                   case 2:
                     passedflag_muon = cut2(mindr, m_drcut);
                     break;
                   case 3:
-                    passedflag_muon = cut2(abs(gchild->eta() - matched_muon->eta()), m_etacut);
+                    passedflag_muon = cut2(abs(gchild->eta() - matched_combinedmuon->eta()), m_etacut);
                     break;
                   case 4:
-                    passedflag_muon = cut2(abs(gchild->phi() - matched_muon->phi()), m_phicut);
+                    passedflag_muon = cut2(abs(gchild->phi() - matched_combinedmuon->phi()), m_phicut);
                     break;
                   case 5:
-                    passedflag_muon = cut2(abs(cdecVtx->z() - matched_muon->z0()), m_dzcut);
+                    passedflag_muon = cut2(abs(cdecVtx->z() - matched_combinedmuon->z0()), m_dzcut);
                     break;
                   default:
                     passedflag_ofl = true;
                 }
-                
+
                 if (passedflag_muon){
                   hist("muon/h_d0eff_standalone_n") -> Fill(truthd0val);
                 }
                 hist("muon/h_d0eff_standalone_d") -> Fill(truthd0val);
-
               }
-
             }
           }// end of gchild loop
         } //end of child loop
       } 
     } 
 
-    //((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
+    //plots in muon maximum d0, this time coming from the prompt ones
+    //signal is found somewhere up there
     if(truth -> prodVtx() != nullptr){
       if (maxedd0_muon_prt < abs(truthd0(truth))){
         maxedd0_muon_prt = abs(truthd0(truth));
@@ -929,7 +830,7 @@ StatusCode MyxAODAnalysis :: execute ()
   } //end of truth loop
 
 
-
+  //WIP
   if(m_trigger_read){
     for (const xAOD::TrackParticle* FTF_T : *trig_FTFparticles){
       if( abs(FTF_T -> d0()) > maxedd0_FTF){
@@ -949,11 +850,8 @@ StatusCode MyxAODAnalysis :: execute ()
   hist("trigger/h_FTF_d0max_event") -> Fill(maxedd0_FTF);
   hist("trigger/h_LRT_d0max_event") -> Fill(maxedd0_LRT);
 
-
   hist("trigger/h_muonsig_d0max_event") -> Fill(maxedd0_muon_sig);
   hist("trigger/h_muonprt_d0max_event") -> Fill(maxedd0_muon_prt);
-
-  
 
   hist("trigger/h_LRT_trigd_d0max_event") -> Fill(maxedd0_LRT_trigd );
 
@@ -964,8 +862,6 @@ StatusCode MyxAODAnalysis :: execute ()
 
 StatusCode MyxAODAnalysis :: finalize ()
 {
-
-
   // This method is the mirror image of initialize(), meaning it gets
   // called after the last event has been processed on the worker node
   // and allows you to finish up any objects you created in
@@ -975,6 +871,8 @@ StatusCode MyxAODAnalysis :: finalize ()
   // submission node after all your histogram outputs have been
   // merged.
 
+
+  //formats some necessary plots 
   hist ("FTF_h_d0eff") -> Divide(hist ("FTF_h_d0eff_n"), hist ("FTF_h_d0eff_d"));
   hist ("FTF_h_d0eff") ->SetMarkerStyle(3);
   hist ("FTF_h_d0eff") -> SetOption("P0"); 
@@ -997,19 +895,15 @@ StatusCode MyxAODAnalysis :: finalize ()
 
   hist ("FTF_h_d0fakes") -> Divide(hist ("FTF_h_d0fakes_n"), hist ("FTF_h_d0fakes_d"));
   hist ("FTF_h_d0fakes") ->SetMarkerStyle(3);
-  //hist ("FTF_h_d0fakes") -> SetOption("P0");
 
   hist ("FTF_h_etafakes") -> Divide(hist ("FTF_h_etafakes_n"), hist ("FTF_h_etafakes_d"));
   hist ("FTF_h_etafakes") ->SetMarkerStyle(3);
-  //hist ("FTF_h_etafakes") -> SetOption("P0");
 
   hist ("LRT_h_d0fakes") -> Divide(hist ("LRT_h_d0fakes_n"), hist ("LRT_h_d0fakes_d"));
   hist ("LRT_h_d0fakes") ->SetMarkerStyle(3);
-  //hist ("LRT_h_d0fakes") -> SetOption("P0");
 
   hist ("LRT_h_etafakes") -> Divide(hist ("LRT_h_etafakes_n"), hist ("LRT_h_etafakes_d"));
   hist ("LRT_h_etafakes") ->SetMarkerStyle(3);
-  //hist ("LRT_h_etafakes") -> SetOption("P0");
 
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_FTF"));
   hist("compare/h_d0truthvtrack_All") -> Add(hist("compare/h_d0truthvtrack_LRT"));
@@ -1021,7 +915,6 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist("LRT_h_d0vTDLength") -> SetOption("box");
   hist("LRT_hNoCut_drvTDLength") -> SetOption("box");
   
-
   hist("FTF_h_NPixvd0") -> SetOption("box");
   hist("FTF_h_NPixvTDLength") -> SetOption("box");
   hist("FTF_h_dzvz") -> SetOption("box");
@@ -1034,24 +927,6 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist("LRT_h_NClustervTDLength") -> SetOption("box");
 
   hist("LRT_h_dzvz") -> SetOption("box");
-
-  
-
-
-
-  
-  //hist ("h_etaeff") ->Divide(hist ("offline_h_eta"), hist ("truth_h_eta"));
-  //hist ("h_pTeff") -> Fill Divide(hist ("offline_h_pT"), hist ("truth_h_pT"));
-
-
-  //  TFile* pFile = new TFile("myfile.root", "CREATE");
-  //TCanvas *c2 = new TCanvas("c2"," Efficiency ",50,50,1680,1050);
-  //c1 = new TCanvas("c","c",1680,1050);
-  //pEff ->Draw("AP") >> hist ("h_pTeff");
-  //c1 -> Print("plots/pEffThing.png");
-
-
-
 
   ANA_MSG_INFO("Algorithm has finished running");
   return StatusCode::SUCCESS;
