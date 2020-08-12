@@ -10,6 +10,13 @@
 
 
 void Comparitor(TString test1, TString test2){
+    bool compare_signal_prompt = true;
+    //to use, signal sample = test1, prompt sample = test2;
+
+
+
+
+
     TString filename1 = "roots/" + test1 + ".root";
     TString filename2 = "roots/" + test2 + ".root";
 
@@ -53,7 +60,6 @@ void Comparitor(TString test1, TString test2){
     h_name_h1.push_back("LRT_h_NcontribPix");
     
     h_name_h1.push_back("LRT_h_d0fakes");
-    h_name_h1.push_back("LRT_h_d0max_event");
 
     //TH1 Loop
     for(Int_t k = 0; k < h_name_h1.size(); k++){
@@ -89,7 +95,7 @@ void Comparitor(TString test1, TString test2){
     
     h_name_h2.push_back("LRT_h_NClustervTDLength");
 
-    //TH1 Loop
+    //TH2 Loop
     for(Int_t j = 0; j < h_name_h2.size(); j++){
         current_histo2 = h_name_h2[j];
         h2_1 = (TH2F*) f_1 -> Get(current_histo2);
@@ -241,4 +247,28 @@ void Comparitor(TString test1, TString test2){
             c1 -> Print("plots/" + test1+ "_v_"+test2 +"_"+ h_eff_names[i] + ".png");
         }
     }
+
+    //comparing prompt with signal sample
+    if(compare_signal_prompt){
+        h1_1 = (TH1F*) f_1 -> Get("trigger/h_LRT_trigd_d0max_event");
+        h1_2 = (TH1F*) f_2 -> Get("trigger/h_LRT_d0max_event");
+
+        histmax = h1_1 -> GetMaximum();
+        if(histmax < h1_2 -> GetMaximum()) histmax = h1_2 -> GetMaximum();
+
+        h1_1 -> SetAxisRange(0, histmax + 10, "Y");
+        h1_1->SetLineColor(2);
+        
+        h1_1->Draw();
+        h1_2->Draw("same");
+
+        legend = new TLegend(0.75,0.8,0.9,0.9);
+        legend->SetHeader("Histogram Markers","C"); // option "C" allows to center the header
+        legend->AddEntry(h1_1, "signal");
+        legend->AddEntry(h1_2, "prompt");
+        legend-> Draw("same"); 
+
+        c1 -> Print("plots/signal_v_prompt.png"); 
+    }
+
 }

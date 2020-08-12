@@ -69,6 +69,12 @@ Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p, const xAOD::
   
 }
 
+Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p){
+  Float_t ans = ((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
+  return -ans;
+  
+}
+
 
 bool MyxAODAnalysis::cut1(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p, Float_t eta_c, Float_t eta_p){
   bool ans = true;
@@ -182,7 +188,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_phivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("LRT_h_dphivTDLength", "dPhi vs Transv. DecLengths for LRT", 60, 0, 40, 300, -0.001, 0.001)));
   ANA_CHECK(book(TH2F("LRT_h_drvTDLength", "dR vs Transv. DecLengths for LRT", 60, 0, 400, 120, 0, 0.01))); //print out overflow 
-  ANA_CHECK(book(TH2F("LRT_h_d0vTDLength", "d0 vs Transv. DecLengths for LRT", 60, 0, 400, 300, -100, 100))); //print out overflow 
+  ANA_CHECK(book(TH2F("LRT_h_d0vTDLength", "d0 vs Transv. DecLengths for LRT", 60, 0, 400, 300, -100, 100)));
   ANA_CHECK(book(TH2F("LRT_hNoCut_drvTDLength", "dR vs Transv. DecLengths for LRT (No Cuts)", 60, 0, 400, 80, 0, 0.1))); 
 
   ANA_CHECK(book(TH1F("LRT_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
@@ -200,7 +206,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_dzvz", "dz vs z LRT", 300, -300, 300, 50, -50, 50)));
 
 
-  ANA_CHECK(book(TH1F("LRT_h_d0max_event", "Maximum abs(d0) in each event for LRT tracks", 200, 0, 400))); 
+  
   
 
   //Comparison Histograms
@@ -324,8 +330,15 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 
   
-
+  ///Trigger-making plots:
+  ANA_CHECK(book(TH1F("trigger/h_muonsig_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (signal muons)", 200, 0, 400)));
+  ANA_CHECK(book(TH1F("trigger/h_muonprt_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (prompt muons)", 200, 0, 3))); 
   
+  ANA_CHECK(book(TH1F("trigger/h_FTF_d0max_event", "Maximum abs(d0) in each event for all tracks in FTF", 200, 0, 400))); 
+  ANA_CHECK(book(TH1F("trigger/h_LRT_d0max_event", "Maximum abs(d0) in each event for all tracks in LRT", 200, 0, 400))); 
+  ANA_CHECK(book(TH1F("trigger/h_LRT_trigd_d0max_event", "Maximum abs(d0) in each event for LRT tracks in a dR (0.2) cone around muons", 200, 0, 400))); //repurpose this for the max event muon
+  
+  //maybe try to make something similar for the eta phi etc
 
   //ANA_CHECK(regEfficiency("testthign", TEfficiency("testeff","Efficiency (Unmanaged)",300, -30, 30)));
   //ANA_CHECK(regEfficiency("test"));
@@ -389,9 +402,20 @@ StatusCode MyxAODAnalysis :: execute ()
   int Nblayer;
   int NcontribPix;
 
-  const xAOD::TrackParticle* maxedd0_LRTTrack = nullptr;
-  Float_t maxedd0 = 0;
+  //const xAOD::TrackParticle* maxedd0_LRTTrack = nullptr;
+  
 
+  Float_t maxedd0_muon_sig = -1;
+  Float_t maxedd0_muon_prt = -1;
+
+
+  Float_t maxedd0_FTF = -1;
+  Float_t maxedd0_LRT = -1;
+  Float_t maxedd0_LRT_trigd  = -1;
+
+  const xAOD::MuonContainer* muon_container = nullptr;
+  ANA_CHECK (evtStore() -> retrieve (muon_container, "HLT_MuonFeatureContainer"));
+  ANA_MSG_INFO("Found muons, size is ");
   
   
   ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
@@ -411,7 +435,7 @@ StatusCode MyxAODAnalysis :: execute ()
   //truth loop
   //finds only those that goes STop -> RHadron -> muon
   for (const xAOD::TruthParticle* truth : *truthparticles) {
-    ANA_MSG_INFO("PDGID" << truth->absPdgId());
+    //ANA_MSG_INFO("PDGID " << truth->absPdgId());
     if (truth->absPdgId() == 1000006) {     
       if (truth->nChildren() > 1) {
         for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
@@ -427,9 +451,6 @@ StatusCode MyxAODAnalysis :: execute ()
 
             if (gchild->absPdgId() == 13){ // at this point everything below are muons from RHadrons from Stops
               
-
-
-
               //Get the decay lengths of stop (expected to be 0) and RHadron (expected to be about 20 mm)
               const xAOD::TruthVertex* tproVtx = truth->prodVtx(); 
               const xAOD::TruthVertex* tdecVtx = truth->decayVtx(); 
@@ -441,11 +462,10 @@ StatusCode MyxAODAnalysis :: execute ()
                  continue;
               }
 
-
               truthd0val = truthd0(gchild, cproVtx);
               RhTD_Length = sqrt(pow((cproVtx->x() - cdecVtx->x()), 2.0) + pow((cproVtx->y() - cdecVtx->y()), 2.0)); 
 
-               //JB CUTS TO TRUTH PARTICLE
+              //JB CUTS TO TRUTH PARTICLE
               //if truth particle takesi n these values, continue
               if(gchild -> pt() < 1000 ||
                  abs(gchild -> eta()) > 2.5 ||
@@ -455,6 +475,11 @@ StatusCode MyxAODAnalysis :: execute ()
                   ANA_MSG_INFO("You've been triggered");
                   continue;
               }
+
+              if(maxedd0_muon_sig < truthd0val){
+                maxedd0_muon_sig = truthd0val; 
+              }
+              
 
               hist ("h_truthDecayLength")->Fill (decaylength(tproVtx, tdecVtx));
               hist ("h_childDecayLength")->Fill (decaylength(cproVtx, cdecVtx));
@@ -669,17 +694,30 @@ StatusCode MyxAODAnalysis :: execute ()
                     matched_LRT = LRT_T;
                   }
 
+                  //fake maker
                   if(calcdr(gchild, LRT_T) < 0.01){
                     hist ("LRT_h_d0fakes_d") -> Fill(truthd0val);
                     hist ("LRT_h_etafakes_d") -> Fill(gchild -> eta());
                   }
+
+                  //Checking for max d0 in the event 
+                  //if events are within the dr cone:
+                  if(calcdr(gchild, LRT_T) < 0.2){
+                    if(abs(LRT_T -> d0()) > maxedd0_LRT_trigd){
+                      maxedd0_LRT_trigd = abs(LRT_T -> d0());
+                    }
+
+                  }
+
                 } //end of LRT loop
 
-                if(abs(matched_LRT -> d0()) > maxedd0){
+                /*
+                if(abs(matched_LRT -> d0()) > maxedd0_LRT_trigd ){
                   maxedd0_LRTTrack = matched_LRT;
-                  maxedd0 = abs(maxedd0_LRTTrack -> d0());
+                  maxedd0_LRT_trigd  = abs(maxedd0_LRTTrack -> d0());
                   
                 }
+                */
 
                 NPix        = matched_LRT->summaryValue( dummy, xAOD::numberOfPixelHits )         ? dummy :-1;
                 NSct        = matched_LRT->summaryValue( dummy, xAOD::numberOfSCTHits )           ? dummy :-1;
@@ -816,11 +854,39 @@ StatusCode MyxAODAnalysis :: execute ()
       } 
     } 
 
-
+    //((truth_p -> prodVtx()) -> x()) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()) * cos(truth_p -> phi());
+    if(truth -> prodVtx() != nullptr){
+      if (maxedd0_muon_prt < abs(truthd0(truth))){
+        maxedd0_muon_prt = abs(truthd0(truth));
+      }
+    }
   } //end of truth loop
 
-  hist("LRT_h_d0max_event") -> Fill(maxedd0);
-  ANA_MSG_INFO("Max d0 in this event: " << maxedd0);
+
+
+
+  for (const xAOD::TrackParticle* FTF_T : *trig_FTFparticles){
+    if( abs(FTF_T -> d0()) > maxedd0_FTF){
+      maxedd0_FTF = abs(FTF_T -> d0());
+    }
+  }
+  for (const xAOD::TrackParticle* LRT_T : *trig_LRTparticles){
+    if( abs(LRT_T -> d0()) > maxedd0_FTF){
+      maxedd0_LRT = abs(LRT_T -> d0());
+    }
+  }
+    
+  hist("trigger/h_FTF_d0max_event") -> Fill(maxedd0_FTF);
+  hist("trigger/h_LRT_d0max_event") -> Fill(maxedd0_LRT);
+
+
+  hist("trigger/h_muonsig_d0max_event") -> Fill(maxedd0_muon_sig);
+  hist("trigger/h_muonprt_d0max_event") -> Fill(maxedd0_muon_prt);
+
+  
+
+  hist("trigger/h_LRT_trigd_d0max_event") -> Fill(maxedd0_LRT_trigd );
+
   return StatusCode::SUCCESS;
 }
 

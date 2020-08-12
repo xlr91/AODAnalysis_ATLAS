@@ -9,6 +9,7 @@
 #include <xAODTracking/TrackParticleContainer.h>
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthVertexContainer.h>
+#include <xAODMuon/MuonContainer.h>
 #include <TEfficiency.h>
 #include "TCanvas.h"
 
@@ -27,6 +28,7 @@ public:
   Double_t decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2);
   Float_t calcdr(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p);
   Float_t truthd0(const xAOD::TruthParticle* truth_p, const xAOD::TruthVertex* truth_v);
+  Float_t truthd0(const xAOD::TruthParticle* truth_p);
 
   //Cuts 
   bool cut1(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p, Float_t eta_c, Float_t eta_p);

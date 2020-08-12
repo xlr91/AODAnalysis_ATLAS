@@ -1,7 +1,7 @@
 
 
 #Job Properties
-test = 15 #3
+test = 0 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
@@ -152,10 +152,10 @@ athAlgSeq += alg
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 500000 # 500000
+theApp.EvtMax = 50000000 # 500000
 
 #Msg limits
-MessageSvc.defaultLimit = 100000000  # all messages 
+MessageSvc.defaultLimit = 1000  # all messages 
 
 # optional include for reducing printout from athena
 include("AthAnalysisBaseComps/SuppressLogging.py")

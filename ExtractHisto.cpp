@@ -87,7 +87,7 @@ void ExtractHisto(){
     h_name_h1.push_back("LRT_h_Nblayer");
     h_name_h1.push_back("LRT_h_NcontribPix");
 
-    h_name_h1.push_back("LRT_h_d0max_event");
+    
 
     
 
@@ -110,6 +110,15 @@ void ExtractHisto(){
 
     h_name_h1.push_back("FTF_h_etafakes");
     h_name_h1.push_back("LRT_h_etafakes");
+
+    h_name_h1.push_back("trigger/h_LRT_d0max_event");
+    h_name_h1.push_back("trigger/h_FTF_d0max_event");
+    h_name_h1.push_back("trigger/h_muonsig_d0max_event");
+    h_name_h1.push_back("trigger/h_LRT_trigd_d0max_event");
+    h_name_h1.push_back("trigger/h_muonprt_d0max_event");
+
+
+
 
 
 
