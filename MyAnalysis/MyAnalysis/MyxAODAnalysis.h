@@ -31,6 +31,7 @@ public:
   //Functions I defined
   Double_t decaylength(const xAOD::TruthVertex* x1, const xAOD::TruthVertex* x2);
   Float_t calcdr(const xAOD::TruthParticle* truth_p, const xAOD::TrackParticle* track_p);
+  Float_t calcdr(const xAOD::TruthParticle* truth_p, const xAOD::L2StandAloneMuon* standmuon_p);
   Float_t truthd0(const xAOD::TruthParticle* truth_p, const xAOD::TruthVertex* truth_v);
   Float_t truthd0(const xAOD::TruthParticle* truth_p);
 

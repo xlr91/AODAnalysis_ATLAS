@@ -117,6 +117,15 @@ void ExtractHisto(){
     h_name_h1.push_back("trigger/h_LRT_trigd_d0max_event");
     h_name_h1.push_back("trigger/h_muonprt_d0max_event");
 
+    h_name_h1.push_back("muon/t_muoncounthistogram");
+    h_name_h1.push_back("muon/t_multid0");
+    h_name_h1.push_back("muon/t_multideta");
+    h_name_h1.push_back("muon/t_multidphi");
+    h_name_h1.push_back("muon/t_doubledeta");
+    h_name_h1.push_back("muon/t_doubledphi");
+
+    
+
 
 
 
@@ -198,6 +207,9 @@ void ExtractHisto(){
     h_name_h2.push_back("FTF_h_dzvz");
     h_name_h2.push_back("LRT_h_dzvz");
 
+    h_name_h2.push_back("muon/t_multidetavdphi");
+    h_name_h2.push_back("muon/t_doubledetavdphi");
+
 
 
 
@@ -264,6 +276,9 @@ void ExtractHisto(){
     h_eff_names.push_back("tgof_h_TDLeff");
 
     h_eff_names.push_back("muon/h_d0eff_standalone");
+    h_eff_names.push_back("muon/h_d0eff_combined");
+
+    
 
 
         
@@ -298,7 +313,7 @@ void ExtractHisto(){
     h_eff_xlabel.push_back("Transverse Decay Length (mm)");
 
     h_eff_xlabel.push_back("d0 (mm)");
-
+    h_eff_xlabel.push_back("d0 (mm)");
     TString efftitle;
 
     

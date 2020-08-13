@@ -42,6 +42,11 @@ Float_t MyxAODAnalysis::calcdr(const xAOD::TruthParticle* truth_p, const xAOD::T
   return sqrt(dr2);
 }
 
+Float_t MyxAODAnalysis::calcdr(const xAOD::TruthParticle* truth_p, const xAOD::L2StandAloneMuon* standmuon_p){
+  Float_t dr2 = pow((truth_p->eta() - standmuon_p->eta()), 2.0) + pow((truth_p->phi() - standmuon_p->phi()), 2.0);
+  return sqrt(dr2);
+}
+
 Float_t MyxAODAnalysis::truthd0(const xAOD::TruthParticle* truth_p, const xAOD::TruthVertex* truth_v){
   //https://arxiv.org/pdf/1405.6569.pdf page 35
   Float_t ans = ((truth_p -> prodVtx()) -> x() - (truth_v -> x())) * sin(truth_p -> phi()) - ((truth_p -> prodVtx()) -> y()- (truth_v -> y())) * cos(truth_p -> phi());
@@ -299,6 +304,7 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 
   ///Trigger-making plots (in progress):
+  ///anything below this line was added rather quickly sorry for the less thought put in the names
   ANA_CHECK(book(TH1F("trigger/h_muonsig_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (signal muons)", 200, 0, 400)));
   ANA_CHECK(book(TH1F("trigger/h_muonprt_d0max_event", "Maximum abs(d0) in each event for all tracks in truth (prompt muons)", 200, 0, 3))); 
   
@@ -307,11 +313,30 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("trigger/h_LRT_trigd_d0max_event", "Maximum abs(d0) in each event for LRT tracks in a dR (0.2) cone around muons", 200, 0, 400))); //repurpose this for the max event muon
 
 
+  ANA_CHECK(book(TH1F("muon/h_d0eff_combined_n", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+  ANA_CHECK(book(TH1F("muon/h_d0eff_combined_d", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+  ANA_CHECK(book(TH1F("muon/h_d0eff_combined", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
+
   ANA_CHECK(book(TH1F("muon/h_d0eff_standalone_n", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
   ANA_CHECK(book(TH1F("muon/h_d0eff_standalone_d", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
   ANA_CHECK(book(TH1F("muon/h_d0eff_standalone", "Efficiency of standalone muon as a function of d0", 25, -100, 100)));
 
+  //t for trigger 
+  ANA_CHECK(book(TH1F("muon/t_muoncounthistogram", "number of muons in each RHadron decay", 6, 0, 6)));
+  ANA_CHECK(book(TH1F("muon/t_multid0", "d0 values for muons from RHadrons, but those Rhadrons that decay to more than one muon", 50, -50, 50)));
+  ANA_CHECK(book(TH1F("muon/t_multideta", "deta values for multi muons from RHadrons, RHadron as ref", 30, -2, 2)));
+  ANA_CHECK(book(TH1F("muon/t_multidphi", "dphi values for multi muons from RHadrons, RHadron as ref", 30, -2, 2)));
+  ANA_CHECK(book(TH2F("muon/t_multidetavdphi", "deta v dphi values for multi muons from RHadrons, RHadron as ref", 30, -2, 2, 30, -2, 2))); 
   
+  ANA_CHECK(book(TH1F("muon/t_doubledeta", "deta values for double muons from RHadrons, between each other", 30, -2, 2))); //should i abs this
+  ANA_CHECK(book(TH1F("muon/t_doubledphi", "dphi values for double muons from RHadrons, between each other", 30, -2, 2)));
+  ANA_CHECK(book(TH2F("muon/t_doubledetavdphi", "deta v dphi values for multi muons from RHadrons, between each other", 30, -2, 2, 30, -2, 2))); 
+
+
+  
+
+
+
   
   ANA_MSG_INFO("Offline: " << m_offline_read << " Trigger Read: " <<  m_trigger_read);
   ANA_MSG_INFO("Cut: " << m_cut);
@@ -340,11 +365,13 @@ StatusCode MyxAODAnalysis :: execute ()
   const xAOD::TrackParticleContainer* trig_FTFparticles = nullptr;
   const xAOD::TrackParticleContainer* trig_LRTparticles = nullptr;
   const xAOD::TrackParticleContainer* combinedmuon_container = nullptr;
+  const xAOD::L2StandAloneMuonContainer* standalonemuons_container = nullptr;
   
   const xAOD::TrackParticle* matched_offline = nullptr;
   const xAOD::TrackParticle* matched_FTF = nullptr;
   const xAOD::TrackParticle* matched_LRT = nullptr;
   const xAOD::TrackParticle* matched_combinedmuon = nullptr;
+  //const xAOD::L2StandAloneMuon* matched_standalonemuon = nullptr;
   
   Float_t mindr;
   Float_t truthd0val;
@@ -367,6 +394,8 @@ StatusCode MyxAODAnalysis :: execute ()
   Float_t maxedd0_LRT = -1;
   Float_t maxedd0_LRT_trigd  = -1;
 
+  int muoncount;
+
 
   
   
@@ -385,35 +414,40 @@ StatusCode MyxAODAnalysis :: execute ()
   }
 
   //still in progress
+  
   if(m_muon_read){
   
     ANA_CHECK (evtStore()->retrieve (combinedmuon_container, "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"));
     ANA_MSG_INFO("Found muons, size is " << combinedmuon_container -> size());
 
-    const xAOD::L2StandAloneMuonContainer* standalonemuons_container = nullptr;
+    
     ANA_CHECK (evtStore()->retrieve (standalonemuons_container, "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"));
     ANA_MSG_INFO("Found standalone muons, size is " << standalonemuons_container -> size());
-    
-    for (const xAOD::L2StandAloneMuon* standalonemuon : *standalonemuons_container){
-      //ANA_MSG_INFO(standalonemuon -> x()); 
-      //find out a way to print d0 here
-    }
   }
 
   //truth loop
   //finds only those that goes STop -> RHadron -> muon
   for (const xAOD::TruthParticle* truth : *truthparticles) {
     if (truth->absPdgId() == 1000006) {     
+      //ANA_MSG_INFO("TRUTH PID " << truth->pdgId());
       if (truth->nChildren() > 1) {
-        for (int ichild=0; ichild< truth->nChildren() ; ichild++) {
+        for (size_t ichild=0; ichild< truth->nChildren() ; ichild++) {
           const xAOD::TruthParticle* child=truth->child(ichild);
-          for (int igchild=0; igchild< child->nChildren() ; igchild++) {
+          //ANA_MSG_INFO("child PID " << child->pdgId());
+          muoncount = 0;
+
+          for (size_t igchild=0; igchild< child->nChildren() ; igchild++) {
             const xAOD::TruthParticle* gchild=child->child(igchild);
             if(gchild == nullptr){ //checks for nullptr as that would break the alg
               ANA_MSG_WARNING("Nullptr alert in gchild");
               continue;
             }
+
+            //ANA_MSG_INFO("gchilds " << gchild -> pdgId());
+            //original upgrade study 
             if (gchild->absPdgId() == 13){ 
+              muoncount = muoncount + 1;
+              //ANA_MSG_INFO("found muons here " << gchild -> pdgId());
               // at this point everything below are muons from RHadrons from Stops
               
               //Get the decay lengths of stop (expected to be 0) and RHadron (varies)
@@ -519,7 +553,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 hist ("offl_h_pTeff_d") -> Fill(gchild->pt() / 1000);
                 hist ("offl_h_TDLeff_d") -> Fill(RhTD_Length);
                 hist ("offl_h_z0eff_d") -> Fill(cdecVtx->z());
-                
+
               }
 
               //Trigger Algorithm
@@ -775,7 +809,8 @@ StatusCode MyxAODAnalysis :: execute ()
 
               //muon reading
               //still in progress
-              if(m_muon_read){                
+              if(m_muon_read){  
+                ///combined muon              
                 mindr = 2000;
                 matched_combinedmuon = nullptr;
                 //finds matched track
@@ -810,12 +845,76 @@ StatusCode MyxAODAnalysis :: execute ()
                 }
 
                 if (passedflag_muon){
+                  hist("muon/h_d0eff_combined_n") -> Fill(truthd0val);
+                }
+                hist("muon/h_d0eff_combined_d") -> Fill(truthd0val);
+
+                ///standalone muon
+                mindr = 2000;
+                //matched_standalonemuon = nullptr;
+                //find matched track
+                for (const xAOD::L2StandAloneMuon* standalonemuon : *standalonemuons_container){
+                  if(mindr > calcdr(gchild, standalonemuon)){
+                    mindr = calcdr(gchild, standalonemuon);
+                    //matched_standalonemuon = standalonemuon;
+                  }
+                }
+
+                //ANA_MSG_INFO(mindr);
+                switch(m_cut) {
+                  case 0:
+                    passedflag_muon = true;
+                    break;
+                  case 2:
+                    passedflag_muon = cut2(mindr, m_drcut);
+                    break;
+                  default:
+                    passedflag_ofl = true;
+                }
+
+                if (passedflag_muon){
                   hist("muon/h_d0eff_standalone_n") -> Fill(truthd0val);
                 }
                 hist("muon/h_d0eff_standalone_d") -> Fill(truthd0val);
+
               }
             }
           }// end of gchild loop
+
+          //This part of the code is from the last week of the internship
+          //studying possible trigger conditions
+          //ANA_MSG_INFO("muoncount " << muoncount);
+          if (muoncount > 2){
+            for (size_t igchild=0; igchild< child->nChildren() ; igchild++) {
+              const xAOD::TruthParticle* gchild=child->child(igchild);
+              if(gchild == nullptr){ //checks for nullptr as that would break the alg
+                ANA_MSG_WARNING("Nullptr alert in gchild");
+                continue;
+              }
+              if (gchild->absPdgId() == 13){
+                if(gchild -> pt() < 1000) continue;
+                hist("muon/t_multid0") -> Fill(truthd0(gchild, child->prodVtx()));
+                hist("muon/t_multideta") -> Fill(child -> eta() - gchild -> eta());
+                hist("muon/t_multidphi") -> Fill(child -> phi() - gchild ->phi());
+                ANA_MSG_INFO(child -> phi() - gchild ->phi());
+                hist("muon/t_multidetavdphi") -> Fill((child -> phi() - gchild ->phi()), (child -> eta() - gchild -> eta()));
+              }
+            }
+          } 
+          
+          
+          if (muoncount == 2){
+            const xAOD::TruthParticle* gchild0 = child->child(0);
+            const xAOD::TruthParticle* gchild1 = child->child(1);
+            hist("muon/t_doubledeta") -> Fill(gchild0 -> eta() - gchild1 -> eta());
+            hist("muon/t_doubledphi") -> Fill(gchild0 -> phi() - gchild1 -> phi());
+            hist("muon/t_doubledetavdphi") -> Fill((gchild0 -> eta() - gchild1 -> eta()),(gchild0 -> phi() - gchild1 -> phi()));
+          }
+
+            
+              
+          if(muoncount != 0) hist("muon/t_muoncounthistogram") -> Fill(muoncount);
+          //ANA_MSG_INFO("muon count " << muoncount);
         } //end of child loop
       } 
     } 
@@ -927,6 +1026,9 @@ StatusCode MyxAODAnalysis :: finalize ()
   hist("LRT_h_NClustervTDLength") -> SetOption("box");
 
   hist("LRT_h_dzvz") -> SetOption("box");
+
+  hist("muon/t_multidetavdphi") -> SetOption("box");
+  hist("muon/t_doubledetavdphi") -> SetOption("box");
 
   ANA_MSG_INFO("Algorithm has finished running");
   return StatusCode::SUCCESS;
