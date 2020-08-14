@@ -352,12 +352,12 @@ StatusCode MyxAODAnalysis :: initialize ()
 
 StatusCode MyxAODAnalysis :: execute ()
 {
-  std::vector<const xAOD::TrackParticle*> track_test;
+  //std::vector<const xAOD::TrackParticle*> track_test;
   // Here you do everything that needs to be done on every single
   // events, e.g. read input variables, apply cuts, and fill
   // histograms and trees.  This is where most of your actual analysis
   // code will go.
-  ANA_MSG_INFO ("in execute");
+  ANA_MSG_INFO ("in analaysis execute");
   
   //Access InDetTrackParticles
   const xAOD::TruthParticleContainer* truthparticles = nullptr;
@@ -413,14 +413,9 @@ StatusCode MyxAODAnalysis :: execute ()
     ANA_MSG_INFO("Found LRT, size is " << trig_LRTparticles->size());
   }
 
-  //still in progress
-  
   if(m_muon_read){
-  
     ANA_CHECK (evtStore()->retrieve (combinedmuon_container, "HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"));
     ANA_MSG_INFO("Found muons, size is " << combinedmuon_container -> size());
-
-    
     ANA_CHECK (evtStore()->retrieve (standalonemuons_container, "HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"));
     ANA_MSG_INFO("Found standalone muons, size is " << standalonemuons_container -> size());
   }
@@ -429,11 +424,11 @@ StatusCode MyxAODAnalysis :: execute ()
   //finds only those that goes STop -> RHadron -> muon
   for (const xAOD::TruthParticle* truth : *truthparticles) {
     if (truth->absPdgId() == 1000006) {     
-      //ANA_MSG_INFO("TRUTH PID " << truth->pdgId());
+      ANA_MSG_INFO("TRUTH PID " << truth->pdgId());
       if (truth->nChildren() > 1) {
         for (size_t ichild=0; ichild< truth->nChildren() ; ichild++) {
           const xAOD::TruthParticle* child=truth->child(ichild);
-          //ANA_MSG_INFO("child PID " << child->pdgId());
+          ANA_MSG_INFO("child PID " << child->pdgId());
           muoncount = 0;
 
           for (size_t igchild=0; igchild< child->nChildren() ; igchild++) {
@@ -883,7 +878,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
           //This part of the code is from the last week of the internship
           //studying possible trigger conditions
-          //ANA_MSG_INFO("muoncount " << muoncount);
+          ANA_MSG_INFO("muoncount " << muoncount);
           if (muoncount > 2){
             for (size_t igchild=0; igchild< child->nChildren() ; igchild++) {
               const xAOD::TruthParticle* gchild=child->child(igchild);

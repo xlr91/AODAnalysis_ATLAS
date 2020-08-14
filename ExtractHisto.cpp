@@ -124,6 +124,15 @@ void ExtractHisto(){
     h_name_h1.push_back("muon/t_doubledeta");
     h_name_h1.push_back("muon/t_doubledphi");
 
+
+    //MYTRIGGER plots
+
+    h_name_h1.push_back("MyTrigger/h_truthpass");
+    h_name_h1.push_back("MyTrigger/h_trackpass");
+    h_name_h1.push_back("MyTrigger/h_passclassification");
+
+
+
     
 
 
@@ -278,6 +287,8 @@ void ExtractHisto(){
     h_eff_names.push_back("muon/h_d0eff_standalone");
     h_eff_names.push_back("muon/h_d0eff_combined");
 
+    h_eff_names.push_back("MyTrigger/t_eff");
+
     
 
 
@@ -314,6 +325,7 @@ void ExtractHisto(){
 
     h_eff_xlabel.push_back("d0 (mm)");
     h_eff_xlabel.push_back("d0 (mm)");
+    h_eff_xlabel.push_back("RH2 Trigger");
     TString efftitle;
 
     

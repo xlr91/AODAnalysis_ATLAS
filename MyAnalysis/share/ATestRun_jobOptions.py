@@ -1,12 +1,14 @@
 
 
 #Job Properties
-test = 16 #3
+test = 14 #3
 J_CUTNUMBER = 2 #2
 DRCUTnumber = 0.01
 DZCUTnumber = 150
 ETACUTnumber = 0.1
 Mflag = False
+
+dotrigger = True
 
 #original AOD file to test on (Offline only)
 if test == 0:
@@ -105,7 +107,8 @@ if test == 13:
 if test == 14:  
     OFlag = True
     Tflag = True
-    testFile = "/scratch/emuhamma/test21/signal/AOD.pool.root"
+    Mflag = True
+    testFile = "/scratch/emuhamma/test21/signalmuon/AOD.pool.root"
 
  #prompt making trigger
 if test == 15:  
@@ -142,26 +145,28 @@ svcMgr.THistSvc.MaxFileSize=-1 #speeds up jobs that output lots of histograms
 
 # Create the algorithm's configuration.
 from AnaAlgorithm.DualUseConfig import createAlgorithm
-alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
-
 # later on we'll add some configuration options for our algorithm that go here
 #alg.ElectronPtCut = 30000.0
 #alg.SampleName = 'Zee'
+
+
+#if dotrigger != True:
+alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 alg.OfflineRead = OFlag
 alg.TriggerRead = Tflag
 alg.MuonRead = Mflag
-
 alg.cutnumber = J_CUTNUMBER
-
 alg.dzcut = DZCUTnumber
 alg.drcut = DRCUTnumber
 alg.etacut = ETACUTnumber
-# Add our algorithm to the main alg sequence
 athAlgSeq += alg
+#else:
+algtrig = createAlgorithm ( 'MyTrigger', 'AnalysisTrig' )
+athAlgSeq += algtrig
 
 # limit the number of events (for testing purposes)
 #theApp.EvtMax = 500
-theApp.EvtMax = 50000000 # 50000000
+theApp.EvtMax = 500000000 # 50000000
 
 #Msg limits
 MessageSvc.defaultLimit = 200000  # all messages 
