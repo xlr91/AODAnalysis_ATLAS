@@ -8,8 +8,6 @@ DZCUTnumber = 150
 ETACUTnumber = 0.1
 Mflag = False
 
-dotrigger = True
-
 #original AOD file to test on (Offline only)
 if test == 0:
     testFile = "/afs/cern.ch/user/e/emuhamma/public/runtest/AOD.pool.root"
@@ -125,9 +123,6 @@ if test == 16:
 
 #See: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SoftwareTutorialxAODAnalysisInCMake for more details about anything here
 
-#testFile = os.getenv("ALRB_TutorialData") + '/r9315/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
-#testFile = "/eos/atlas/atlasdatadisk/rucio/mc16_13TeV/05/e6/AOD.19016897._000001.pool.root.1"
-#testFile = "/afs/cern.ch/user/b/baines/work/public/LRT/METtest/AOD.pool.root"
 
 #override next line on command line with: --filesInput=XXX
 jps.AthenaCommonFlags.FilesInput = [testFile] 
@@ -145,12 +140,7 @@ svcMgr.THistSvc.MaxFileSize=-1 #speeds up jobs that output lots of histograms
 
 # Create the algorithm's configuration.
 from AnaAlgorithm.DualUseConfig import createAlgorithm
-# later on we'll add some configuration options for our algorithm that go here
-#alg.ElectronPtCut = 30000.0
-#alg.SampleName = 'Zee'
 
-
-#if dotrigger != True:
 alg = createAlgorithm ( 'MyxAODAnalysis', 'AnalysisAlg' )
 alg.OfflineRead = OFlag
 alg.TriggerRead = Tflag
@@ -160,7 +150,8 @@ alg.dzcut = DZCUTnumber
 alg.drcut = DRCUTnumber
 alg.etacut = ETACUTnumber
 athAlgSeq += alg
-#else:
+
+#add in the new trigger algorithm
 algtrig = createAlgorithm ( 'MyTrigger', 'AnalysisTrig' )
 athAlgSeq += algtrig
 

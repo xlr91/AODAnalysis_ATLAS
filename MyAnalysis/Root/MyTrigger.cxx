@@ -68,10 +68,6 @@ StatusCode MyTrigger :: execute ()
     bool trigger_cuts2;
 
 
-    //here we have the truth loop
-    //here we need to check if they decay into the two muons thing
-    //its similar to the thing one that you have on the analysis one
-
     const xAOD::TruthParticleContainer* truthparticles = nullptr;
     const xAOD::TruthParticle* child = nullptr; 
     const xAOD::TruthParticle* gchild = nullptr; 
@@ -143,6 +139,6 @@ StatusCode MyTrigger :: execute ()
 
 StatusCode MyTrigger :: finalize ()
 {
-    ANA_MSG_INFO("ayy it works lmao");
+    ANA_MSG_INFO("Ayy it works");
     return StatusCode::SUCCESS;
 }

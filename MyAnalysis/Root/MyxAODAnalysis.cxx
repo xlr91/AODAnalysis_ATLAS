@@ -138,6 +138,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("FTF_h_dz_20-30", "dz values for FTF tracks at 20-30 mm TDL", 300, -300, 300)));
   ANA_CHECK(book(TH2F("FTF_h_phivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 20, 300, -3.2, 3.2)));
   ANA_CHECK(book(TH2F("FTF_h_dphivTDLength", "dPhi vs Transv. DecLengths for FTF", 60, 0, 40, 300, -0.001, 0.001)));
+  
   ///pixel/sct hit histograms
   ANA_CHECK(book(TH1F("FTF_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("FTF_h_NSct", "Number of SCT Hits", 20, 0, 20)));
@@ -169,6 +170,7 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH2F("LRT_h_drvTDLength", "dR vs Transv. DecLengths for LRT", 60, 0, 400, 120, 0, 0.01))); //print out overflow 
   ANA_CHECK(book(TH2F("LRT_h_d0vTDLength", "d0 vs Transv. DecLengths for LRT", 60, 0, 400, 300, -100, 100)));
   ANA_CHECK(book(TH2F("LRT_hNoCut_drvTDLength", "dR vs Transv. DecLengths for LRT (No Cuts)", 60, 0, 400, 80, 0, 0.1))); 
+  
   ///pixel/sct hit histograms
   ANA_CHECK(book(TH1F("LRT_h_NPix", "Number of Pixel Hits", 20, 0, 20)));
   ANA_CHECK(book(TH1F("LRT_h_NSct", "Number of SCT Hits", 20, 0, 20)));
