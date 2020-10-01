@@ -76,6 +76,11 @@ StatusCode MyTrigger :: execute ()
     ANA_CHECK (evtStore() -> retrieve (truthparticles, "TruthParticles"));
     ANA_CHECK (evtStore() -> retrieve (trig_LRTparticles, "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_FullScanlrt_FTF"));
 
+
+    //const SOMETHING* SOMETHING = nullptr;
+    //ANA_CHECK (evtStore() -> retrieve (SOMETHING, "NAMEOFSOMETHING"));
+
+
     //truth loop
     for (const xAOD::TruthParticle* truth : *truthparticles) {
         if (truth -> absPdgId() == 1000006 && truth -> nChildren() > 1){

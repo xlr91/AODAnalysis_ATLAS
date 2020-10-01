@@ -237,17 +237,24 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("offl_h_TDLeff", "Efficiency_function_of_TDL", 40, 0, 400)));
 
   ///FTF and LRT respect to truth
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 60, -30, 30)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 60, -30, 30)));
-  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 60, -30, 30)));
-  ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 50, -300, 300)));
-  ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 50, -300, 300)));
-  ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 50, -300, 300)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("FTF_h_d0eff", "Efficiency_function_of_d0_FTF", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_n", "Efficiency_function_of_d0_n_FTF", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff_d", "Efficiency_function_of_d0_d_FTF", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("LRT_h_d0eff", "Efficiency_function_of_d0_FTF", 25, -300, 300)));
+
+  ANA_CHECK(book(TH1F("FTF_h_TDLeff_n", "Efficiency_function_of_d0_n_FTF", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("FTF_h_TDLeff_d", "Efficiency_function_of_d0_d_FTF", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("FTF_h_TDLeff", "Efficiency_function_of_d0_FTF", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("LRT_h_TDLeff_n", "Efficiency_function_of_d0_n_FTF", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("LRT_h_TDLeff_d", "Efficiency_function_of_d0_d_FTF", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("LRT_h_TDLeff", "Efficiency_function_of_d0_FTF", 40, 0, 400)));
 
   ///Trigger respect to truth
-  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 25, -300, 300)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 25, -300, 300)));
-  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_n", "Efficiency_function_of_d0_n", 25, -50, 50)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff_d", "Efficiency_function_of_d0_d", 25, -50, 50)));
+  ANA_CHECK(book(TH1F("trig_h_d0eff", "Efficiency_function_of_d0", 25, -50, 50)));
 
   ANA_CHECK(book(TH1F("trig_h_etaeff_n", "Efficiency_function_of_eta_n", 25, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("trig_h_etaeff_d", "Efficiency_function_of_eta_d", 25, -3.2, 3.2)));
@@ -287,6 +294,10 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("tgof_h_d0eff_d", "Efficiency_function_of_d0_d", 25, -300, 300)));
   ANA_CHECK(book(TH1F("tgof_h_d0eff", "Efficiency_function_of_d0", 25, -300, 300)));
 
+  ANA_CHECK(book(TH1F("tgof_h_d0FTFeff_n", "Efficiency_function_of_d0_n", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("tgof_h_d0FTFeff_d", "Efficiency_function_of_d0_d", 25, -300, 300)));
+  ANA_CHECK(book(TH1F("tgof_h_d0FTFeff", "Efficiency_function_of_d0", 25, -300, 300)));
+
   ANA_CHECK(book(TH1F("tgof_h_etaeff_n", "Efficiency_function_of_eta_n", 25, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("tgof_h_etaeff_d", "Efficiency_function_of_eta_d", 25, -3.2, 3.2)));
   ANA_CHECK(book(TH1F("tgof_h_etaeff", "Efficiency_function_of_eta", 25, -3.2, 3.2))); 
@@ -302,6 +313,10 @@ StatusCode MyxAODAnalysis :: initialize ()
   ANA_CHECK(book(TH1F("tgof_h_TDLeff_n", "Efficiency_function_of_TDL_n", 40, 0, 400)));
   ANA_CHECK(book(TH1F("tgof_h_TDLeff_d", "Efficiency_function_of_TDL_d", 40, 0, 400)));
   ANA_CHECK(book(TH1F("tgof_h_TDLeff", "Efficiency_function_of_TDL", 40, 0, 400)));
+
+  ANA_CHECK(book(TH1F("tgof_h_TDLFTFeff_n", "Efficiency_function_of_TDL_n", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("tgof_h_TDLFTFeff_d", "Efficiency_function_of_TDL_d", 40, 0, 400)));
+  ANA_CHECK(book(TH1F("tgof_h_TDLFTFeff", "Efficiency_function_of_TDL", 40, 0, 400)));
 
 
 
@@ -635,6 +650,7 @@ StatusCode MyxAODAnalysis :: execute ()
 
                   hist ("FTF_h_phivTDLength")->Fill (RhTD_Length, matched_FTF->phi());    
                   hist ("FTF_h_d0eff_n") -> Fill(truthd0val);
+                  hist ("FTF_h_TDLeff_n") -> Fill(RhTD_Length);
 
                   hist ("FTF_h_NPix") -> Fill(NPix);
                   hist ("FTF_h_NSct") -> Fill(NSct);
@@ -648,7 +664,8 @@ StatusCode MyxAODAnalysis :: execute ()
                   hist("h_ftfpass") -> Fill(0);
                 }
 
-                hist ("FTF_h_d0eff_d") -> Fill(truthd0val);                
+                hist ("FTF_h_d0eff_d") -> Fill(truthd0val);
+                hist ("FTF_h_TDLeff_d") -> Fill(RhTD_Length);                
 
                 //LRT
                 mindr = 2000;
@@ -739,6 +756,7 @@ StatusCode MyxAODAnalysis :: execute ()
                   
                   hist ("LRT_h_phivTDLength")->Fill (RhTD_Length, matched_LRT->phi());
                   hist ("LRT_h_d0eff_n") -> Fill(truthd0val);
+                  hist ("LRT_h_TDLeff_n") -> Fill(RhTD_Length);
 
                   hist ("LRT_h_NPix") -> Fill(NPix);
                   hist ("LRT_h_NSct") -> Fill(NSct);
@@ -756,6 +774,7 @@ StatusCode MyxAODAnalysis :: execute ()
                 } else{hist("h_lrtpass") -> Fill(0);}
 
                 hist ("LRT_h_d0eff_d") -> Fill(truthd0val);
+                hist ("LRT_h_TDLeff_d") -> Fill(RhTD_Length);
                 hist ("LRT_hNoCut_drvTDLength")->Fill (RhTD_Length, mindr);
 
 
@@ -788,9 +807,11 @@ StatusCode MyxAODAnalysis :: execute ()
 
                 if(passedflag_ofl) {
                   hist("tgof_h_d0eff_d") -> Fill(matched_offline -> d0());
+                  hist("tgof_h_d0FTFeff_d") -> Fill(matched_offline -> d0());
                   hist("tgof_h_etaeff_d") -> Fill(matched_offline->eta());
                   hist("tgof_h_pTeff_d") -> Fill(matched_offline->pt() / 1000);
                   hist("tgof_h_TDLeff_d") -> Fill(RhTD_Length);
+                  hist("tgof_h_TDLFTFeff_d") -> Fill(RhTD_Length);
                   hist("tgof_h_z0eff_d") -> Fill(matched_offline->z0());
 
                   //if all three matches then fill it in
@@ -800,7 +821,14 @@ StatusCode MyxAODAnalysis :: execute ()
                     hist("tgof_h_pTeff_n") -> Fill(matched_offline->pt() / 1000);
                     hist("tgof_h_TDLeff_n") -> Fill(RhTD_Length);
                     hist("tgof_h_z0eff_n") -> Fill(matched_offline->z0());
+
+                    if(passedflag_ftf){
+                      hist("tgof_h_d0FTFeff_n") -> Fill(matched_offline -> d0());
+                      hist("tgof_h_TDLFTFeff_n") -> Fill(RhTD_Length);
+                    }
                   }
+
+
                 }
               }
 

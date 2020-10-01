@@ -283,6 +283,8 @@ void ExtractHisto(){
     h_eff_names.push_back("tgof_h_pTeff");
     h_eff_names.push_back("tgof_h_z0eff");
     h_eff_names.push_back("tgof_h_TDLeff");
+    h_eff_names.push_back("tgof_h_d0FTFeff");
+    
 
     h_eff_names.push_back("muon/h_d0eff_standalone");
     h_eff_names.push_back("muon/h_d0eff_combined");
@@ -321,7 +323,8 @@ void ExtractHisto(){
     h_eff_xlabel.push_back("eta");
     h_eff_xlabel.push_back("pT (GeV)");
     h_eff_xlabel.push_back("z0 (mm)");
-    h_eff_xlabel.push_back("Transverse Decay Length (mm)");
+    h_eff_xlabel.push_back("Transverse Decay Length (mm) [respect to offline]");
+    h_eff_xlabel.push_back("d0 (mm)");
 
     h_eff_xlabel.push_back("d0 (mm)");
     h_eff_xlabel.push_back("d0 (mm)");
@@ -378,12 +381,28 @@ void ExtractHisto(){
     t_eff_impose.push_back("trig_h_etaeff");
     t_eff_impose.push_back("trig_h_pTeff");
     t_eff_impose.push_back("trig_h_TDLeff");
+    
+    t_eff_impose.push_back("FTF_h_d0eff"); ///
+    t_eff_impose.push_back("FTF_h_d0eff"); ///
+    t_eff_impose.push_back("FTF_h_TDLeff"); ///
+    t_eff_impose.push_back("FTF_h_TDLeff"); ///
+
+    t_eff_impose.push_back("tgof_h_d0FTFeff"); ///
+    t_eff_impose.push_back("tgof_h_TDLFTFeff"); ///
 
     std::vector<TString> o_eff_impose;
     o_eff_impose.push_back("offl_h_d0eff");
     o_eff_impose.push_back("offl_h_etaeff");
     o_eff_impose.push_back("offl_h_pTeff");
     o_eff_impose.push_back("offl_h_TDLeff");
+
+    o_eff_impose.push_back("LRT_h_d0eff"); ///
+    o_eff_impose.push_back("trig_h_d0eff");
+    o_eff_impose.push_back("LRT_h_TDLeff"); ///
+    o_eff_impose.push_back("trig_h_TDLeff");
+
+    o_eff_impose.push_back("tgof_h_d0eff"); ///
+    o_eff_impose.push_back("tgof_h_TDLeff"); ///
     
     std::vector<TString> to_eff_xlabel;
     to_eff_xlabel.push_back("d0 (mm)");
@@ -391,6 +410,11 @@ void ExtractHisto(){
     to_eff_xlabel.push_back("pT (GeV)");
     to_eff_xlabel.push_back("Transverse Decay Length (mm)");
 
+    to_eff_xlabel.push_back("d0 (mm)"); ///
+    to_eff_xlabel.push_back("Transverse Decay Length (mm)"); ///
+
+    to_eff_xlabel.push_back("d0 (mm)"); ///
+    to_eff_xlabel.push_back("Transverse Decay Length (mm)"); ///
 
 
     for(Int_t i = 0; i < t_eff_impose.size(); i++){
@@ -442,6 +466,48 @@ void ExtractHisto(){
             legend->AddEntry(pEff2,"Offline");
             //legend->AddEntry("gr","Graph with error bars","lep");
 
+
+
+            ///IF ITS THE JOHN BAINES ONE DO SOMETHING
+            if(t_eff_impose[i] == "FTF_h_d0eff"){
+                legend -> Clear();
+                legend->SetHeader("Efficiency Markers","C"); // option "C" allows to center the header
+                legend->AddEntry(pEff1, "FTF");
+
+                if(o_eff_impose[i] == "trig_h_d0eff"){
+                    legend->AddEntry(pEff2,"FTF + LRT");
+                } else{
+                    legend->AddEntry(pEff2,"LRT");
+                }
+                
+                pEff1->SetTitle("Efficiency vs d0 (mm) for FTF and LRT Steps");
+
+            } else if(t_eff_impose[i] == "FTF_h_TDLeff"){
+                legend -> Clear();
+                legend->SetHeader("Efficiency Markers","C"); // option "C" allows to center the header
+                legend->AddEntry(pEff1, "FTF");
+                if(o_eff_impose[i] == "trig_h_TDLeff"){
+                    legend->AddEntry(pEff2,"FTF + LRT");
+                } else{
+                    legend->AddEntry(pEff2,"LRT");
+                }
+                pEff1->SetTitle("Efficiency vs Transverse Decay Length (mm) for FTF and LRT Steps");
+
+            } else if(t_eff_impose[i] == "tgof_h_d0FTFeff"){
+                legend -> Clear();
+                legend->SetHeader("Efficiency Markers","C"); // option "C" allows to center the header
+                legend->AddEntry(pEff1, "FTF");
+                legend->AddEntry(pEff2,"FTF + LRT");
+                pEff1->SetTitle("Efficiency wrt Offline vs d0 (mm) for FTF and LRT Steps");
+
+            } else if(t_eff_impose[i] == "tgof_h_TDLFTFeff"){
+                legend -> Clear();
+                legend->SetHeader("Efficiency Markers","C"); // option "C" allows to center the header
+                legend->AddEntry(pEff1, "FTF");                
+                legend->AddEntry(pEff2,"FTF + LRT");
+                pEff1->SetTitle("Efficiency wrt Offline vs Transverse Decay Length (mm) for FTF and LRT Steps");
+            }
+
             //Draw          
             pEff1 -> Draw();
 
@@ -462,10 +528,6 @@ void ExtractHisto(){
         }
     }
 
-    
-
-
-    
 
 
 
